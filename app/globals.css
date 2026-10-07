@@ -1,0 +1,52 @@
+/* =============================================================
+   globals.css — Belajar base reset
+   Lab routes use their own scoped CSS modules.
+   DESIGN.md tokens kept here for future production use.
+   ============================================================= */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* DESIGN.md production tokens */
+  --rn-bg:     #12100E;
+  --rn-text:   #EFE6D2;
+  --rn-muted:  #A89F8C;
+  --rn-gold:   #C9A24B;
+  --rn-sogan:  #8A5A2B;
+  --rn-seal:   #C23B2A;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--rn-bg);
+  color: var(--rn-text);
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+}
+
+img, svg {
+  display: block;
+  max-width: 100%;
+}
