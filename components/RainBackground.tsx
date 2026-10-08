@@ -1,6 +1,7 @@
 /**
  * components/RainBackground.tsx
- * Subtle atmospheric rain video backdrop.
+ * Subtle atmospheric rain video backdrop restricted to the Hero area.
+ * Fades seamlessly into solid #0B0D10 towards the bottom before task list.
  */
 "use client";
 
@@ -23,12 +24,14 @@ export function RainBackground() {
     <div
       aria-hidden="true"
       style={{
-        position: "fixed",
-        inset: 0,
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: "440px",
         zIndex: 0,
         pointerEvents: "none",
         overflow: "hidden",
-        opacity: 0.45,
       }}
     >
       <video
@@ -41,7 +44,17 @@ export function RainBackground() {
           width: "100%",
           height: "100%",
           objectFit: "cover",
-          filter: "brightness(0.75) contrast(1.1)",
+          filter: "brightness(0.7) contrast(1.1)",
+          opacity: 0.5,
+        }}
+      />
+      {/* Seamless gradient fade into #0B0D10 */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "linear-gradient(to bottom, rgba(11, 13, 16, 0.2) 0%, rgba(11, 13, 16, 0.6) 60%, #0B0D10 100%)",
         }}
       />
     </div>

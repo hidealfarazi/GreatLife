@@ -5,6 +5,7 @@ import { AI_BRIEF } from "@/lib/repo";
 import { getGreeting, formatDate } from "@/lib/mock";
 import { TechText } from "@/components/TechText";
 import { AssignmentList } from "@/components/AssignmentList";
+import { RainBackground } from "@/components/RainBackground";
 
 export default function HomePage() {
   const greeting = getGreeting();
@@ -23,6 +24,7 @@ export default function HomePage() {
         position: "relative",
       }}
     >
+      <RainBackground />
       <main
         style={{
           flex: 1,
@@ -33,6 +35,8 @@ export default function HomePage() {
           display: "flex",
           flexDirection: "column",
           gap: "2.25rem",
+          position: "relative",
+          zIndex: 1,
         }}
       >
         {/* Top counter */}
