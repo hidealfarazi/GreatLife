@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Geist_Mono, Geist } from "next/font/google";
 import "./globals.css";
+import { BottomNav } from "@/components/BottomNav";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -32,9 +33,10 @@ export default function RootLayout({
   return (
     <html lang="id" className={`${spaceGrotesk.variable} ${geist.variable} ${geistMono.variable}`}>
       <body style={{ position: "relative", minHeight: "100vh", background: "var(--rn-bg)", color: "var(--rn-text)" }}>
-        <div style={{ position: "relative", zIndex: 1, paddingBottom: "4rem" }}>
+        <div style={{ position: "relative", zIndex: 1, paddingBottom: "5rem" }}>
           {children}
         </div>
+        <BottomNav />
       </body>
     </html>
   );
