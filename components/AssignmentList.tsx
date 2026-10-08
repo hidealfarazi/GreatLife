@@ -157,6 +157,7 @@ export function AssignmentList() {
                         </div>
                         <p
                           style={{
+                            fontFamily: "var(--font-display, var(--font-body, sans-serif))",
                             fontSize: "1.125rem",
                             fontWeight: 700,
                             lineHeight: 1.25,

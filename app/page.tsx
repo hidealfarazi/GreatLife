@@ -20,7 +20,7 @@ export default function HomePage() {
         minHeight: "100dvh",
         display: "flex",
         flexDirection: "column",
-        fontFamily: "var(--font-serif, serif)",
+        fontFamily: "var(--font-body, sans-serif)",
         position: "relative",
       }}
     >
@@ -67,11 +67,13 @@ export default function HomePage() {
         <div>
           <h1
             style={{
-              fontSize: "clamp(2.75rem, 12vw, 5.5rem)",
+              fontSize: "clamp(2rem, 7vw, 3.5rem)",
               fontWeight: 800,
-              lineHeight: 1.05,
+              lineHeight: 1.1,
               letterSpacing: "-0.02em",
               color: "var(--rn-text)",
+              wordBreak: "normal",
+              hyphens: "none",
             }}
           >
             <TechText text={greetingText} />
@@ -93,8 +95,8 @@ export default function HomePage() {
         {/* AI Brief */}
         <p
           style={{
-            fontStyle: "italic",
-            fontSize: "1rem",
+            fontFamily: "var(--font-body, sans-serif)",
+            fontSize: "0.9375rem",
             lineHeight: 1.65,
             color: "var(--rn-muted)",
             maxWidth: "28rem",
