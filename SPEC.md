@@ -72,15 +72,26 @@ create table assignments (
   status text not null default 'todo' check (status in ('todo','doing','done')),
   progress smallint not null default 0 check (progress between 0 and 100),
   est_minutes int,
+  archived_at timestamptz,
   created_at timestamptz not null default now()
 );
 
-create table subtasks (
+create table checklist_items (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
-  assignment_id uuid not null references assignments(id) on delete cascade,
+  parent_type text not null check (parent_type in ('assignment','material')),
+  parent_id uuid not null,
+  kind text not null check (kind in ('step','bring','term')),
   title text not null,
   done boolean not null default false
+);
+
+create table materials (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  subject_id uuid references subjects(id) on delete set null,
+  title text not null,
+  created_at timestamptz not null default now()
 );
 
 create table checkpoints (
