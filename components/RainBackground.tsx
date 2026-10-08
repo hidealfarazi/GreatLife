@@ -1,7 +1,6 @@
 /**
  * components/RainBackground.tsx
  * Subtle atmospheric rain video backdrop.
- * Fixed, pointer-events none, respects prefers-reduced-motion.
  */
 "use client";
 
@@ -29,7 +28,7 @@ export function RainBackground() {
         zIndex: 0,
         pointerEvents: "none",
         overflow: "hidden",
-        opacity: 0.28, // subtle atmospheric overlay
+        opacity: 0.45,
       }}
     >
       <video
@@ -42,7 +41,7 @@ export function RainBackground() {
           width: "100%",
           height: "100%",
           objectFit: "cover",
-          filter: "brightness(0.7) contrast(1.1)",
+          filter: "brightness(0.75) contrast(1.1)",
         }}
       />
     </div>

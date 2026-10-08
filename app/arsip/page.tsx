@@ -32,7 +32,7 @@ export default function ArsipPage() {
   return (
     <div
       style={{
-        background: "var(--rn-bg)",
+        background: "transparent",
         color: "var(--rn-text)",
         minHeight: "100dvh",
         padding: "2rem 1.5rem 6rem",
