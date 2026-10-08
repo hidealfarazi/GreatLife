@@ -88,9 +88,9 @@ export function SwipeRow({ children, onArchive, onDelete, ariaLabel = "Baris tug
       }}
       aria-label={ariaLabel}
     >
-      {/* Action drawer behind */}
+      {/* Action drawer behind — hidden until swiped */}
       <div
-        aria-hidden={offset === 0}
+        aria-hidden={!open && offset === 0}
         style={{
           position: "absolute",
           inset: 0,
@@ -98,6 +98,9 @@ export function SwipeRow({ children, onArchive, onDelete, ariaLabel = "Baris tug
           justifyContent: "flex-end",
           alignItems: "stretch",
           pointerEvents: open ? "auto" : "none",
+          opacity: open || offset !== 0 ? 1 : 0,
+          visibility: open || offset !== 0 ? "visible" : "hidden",
+          transition: "opacity 150ms ease-out, visibility 150ms",
         }}
       >
         <button
@@ -108,13 +111,13 @@ export function SwipeRow({ children, onArchive, onDelete, ariaLabel = "Baris tug
           }}
           style={{
             width: ACTION_W,
-            background: "var(--rn-accent)",
-            color: "#0B0D10",
+            background: "#2563EB",
+            color: "#FFFFFF",
             fontFamily: "var(--font-mono, monospace)",
-            fontSize: "0.7rem",
+            fontSize: "0.75rem",
             letterSpacing: "0.08em",
             textTransform: "uppercase",
-            fontWeight: 700,
+            fontWeight: 800,
             borderRadius: 0,
             border: "none",
             cursor: "pointer",
@@ -134,13 +137,13 @@ export function SwipeRow({ children, onArchive, onDelete, ariaLabel = "Baris tug
           }}
           style={{
             width: ACTION_W,
-            background: "var(--rn-alert)",
-            color: "#fff",
+            background: "#DC2626",
+            color: "#FFFFFF",
             fontFamily: "var(--font-mono, monospace)",
-            fontSize: "0.7rem",
+            fontSize: "0.75rem",
             letterSpacing: "0.08em",
             textTransform: "uppercase",
-            fontWeight: 700,
+            fontWeight: 800,
             borderRadius: 0,
             border: "none",
             cursor: "pointer",
@@ -162,12 +165,13 @@ export function SwipeRow({ children, onArchive, onDelete, ariaLabel = "Baris tug
         onPointerCancel={onPointerUp}
         style={{
           position: "relative",
-          background: "transparent",
+          background: "#0B0D10",
           transform: `translateX(${offset}px)`,
           transition: dragging.current ? "none" : "transform 200ms ease-out",
           display: "flex",
           alignItems: "stretch",
           minHeight: 44,
+          zIndex: 2,
         }}
       >
         <div style={{ flex: 1, minWidth: 0 }}>{children}</div>
