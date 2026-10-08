@@ -26,6 +26,29 @@ export default function MorePage() {
 
       <nav style={{ display: "flex", flexDirection: "column", gap: "0" }}>
         <Link
+          href="/belajar"
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "1.25rem 0",
+            borderBottom: "1px solid rgba(168, 159, 140, 0.2)",
+            textDecoration: "none",
+            color: "var(--rn-text)",
+          }}
+        >
+          <span style={{ fontWeight: 700 }}>Materi Belajar</span>
+          <span
+            style={{
+              fontFamily: "var(--font-mono, monospace)",
+              fontSize: "0.7rem",
+              color: "var(--rn-muted)",
+            }}
+          >
+            Daftar istilah & checkpoint →
+          </span>
+        </Link>
+        <Link
           href="/arsip"
           style={{
             display: "flex",
