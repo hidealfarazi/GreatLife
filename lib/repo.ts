@@ -82,20 +82,16 @@ let assignments: Assignment[] = [
 ];
 
 let checklistItems: ChecklistItem[] = [
-  // t1 steps & brings
   { id: "c1", parentType: "assignment", parentId: "t1", kind: "step", title: "Rancang markup HTML", done: true },
   { id: "c2", parentType: "assignment", parentId: "t1", kind: "step", title: "Tulis validasi TypeScript", done: true },
   { id: "c3", parentType: "assignment", parentId: "t1", kind: "step", title: "Uji coba responsif 390px", done: false },
   { id: "c4", parentType: "assignment", parentId: "t1", kind: "bring", title: "Laptop terisi penuh", done: true },
   { id: "c5", parentType: "assignment", parentId: "t1", kind: "bring", title: "Kabel charger Type-C", done: false },
-  // t2 steps & brings
   { id: "c6", parentType: "assignment", parentId: "t2", kind: "step", title: "Identifikasi entitas utama", done: true },
   { id: "c7", parentType: "assignment", parentId: "t2", kind: "step", title: "Tentukan relasi 1-to-Many & Many-to-Many", done: false },
   { id: "c8", parentType: "assignment", parentId: "t2", kind: "bring", title: "Buku catatan grid", done: true },
-  // b1 steps & brings
   { id: "c9", parentType: "assignment", parentId: "b1", kind: "step", title: "Baca rumus dasar turunan limit", done: false },
   { id: "c10", parentType: "assignment", parentId: "b1", kind: "bring", title: "Kalkulator scientific", done: true },
-  // b2 steps & brings
   { id: "c11", parentType: "assignment", parentId: "b2", kind: "step", title: "Kompilasi foto dokumentasi", done: true },
   { id: "c12", parentType: "assignment", parentId: "b2", kind: "step", title: "Tulis kesimpulan mingguan", done: true },
   { id: "c13", parentType: "assignment", parentId: "b2", kind: "bring", title: "Catatan harian PKL", done: true },
@@ -114,7 +110,8 @@ let materialTerms: ChecklistItem[] = [
   { id: "mt3", parentType: "material", parentId: "m2", kind: "term", title: "Kunci Primer dan Kunci Tamu (Foreign Key)", done: true },
 ];
 
-// --- Repository Functions ---
+export const AI_BRIEF =
+  "Prioritaskan login form dulu — sudah 65%. ERD bisa kamu selesaikan malam ini setelah makan.";
 
 export function listAssignments(options?: { includeArchived?: boolean }): Assignment[] {
   if (options?.includeArchived) {
@@ -161,7 +158,6 @@ export function deleteAssignment(id: string): boolean {
   return assignments.length < lenBefore;
 }
 
-// Checklist & terms
 export function listChecklist(parentType: "assignment" | "material", parentId: string): ChecklistItem[] {
   const source = parentType === "material" ? materialTerms : checklistItems;
   return source.filter((c) => c.parentType === parentType && c.parentId === parentId);
@@ -186,7 +182,6 @@ export function addChecklistItem(parentType: "assignment" | "material", parentId
 }
 
 export function toggleChecklistItem(id: string): ChecklistItem | undefined {
-  // check both checklistItems and materialTerms
   let item = checklistItems.find((c) => c.id === id);
   if (item) {
     item.done = !item.done;
@@ -205,7 +200,6 @@ export function deleteChecklistItem(id: string): boolean {
   const len1 = checklistItems.length;
   checklistItems = checklistItems.filter((c) => {
     if (c.id === id) {
-      // update progress after removal if assignment
       setTimeout(() => recalculateAssignmentProgress(c.parentId), 0);
       return false;
     }
@@ -227,7 +221,6 @@ function recalculateAssignmentProgress(assignmentId: string) {
   updateAssignment(assignmentId, { progress, status });
 }
 
-// Checkpoints
 export function addCheckpoint(assignmentId: string, note?: string, imagePath?: string): Checkpoint {
   const cp: Checkpoint = {
     id: "cp_" + Math.random().toString(36).substring(2, 9),
@@ -240,7 +233,6 @@ export function addCheckpoint(assignmentId: string, note?: string, imagePath?: s
   return cp;
 }
 
-// Materials
 export function listMaterials(): Material[] {
   return [...materials];
 }
