@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Geist_Mono, Geist } from "next/font/google";
 import "./globals.css";
+import { RainBackground } from "@/components/RainBackground";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -31,7 +32,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" className={`${spaceGrotesk.variable} ${geist.variable} ${geistMono.variable}`}>
-      <body>{children}</body>
+      <body style={{ position: "relative", minHeight: "100vh" }}>
+        <RainBackground />
+        <div style={{ position: "relative", zIndex: 1 }}>
+          {children}
+        </div>
+      </body>
     </html>
   );
 }
