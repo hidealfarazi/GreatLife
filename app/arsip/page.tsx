@@ -75,7 +75,7 @@ export default function ArsipPage() {
                     fontFamily: "var(--font-mono, monospace)",
                     fontSize: "0.6875rem",
                     letterSpacing: "0.1em",
-                    color: "var(--rn-gold)",
+                    color: "var(--rn-accent)",
                     textTransform: "uppercase",
                   }}
                 >
@@ -129,8 +129,8 @@ export default function ArsipPage() {
                     textTransform: "uppercase",
                     padding: "0.5rem 0.75rem",
                     minHeight: 44,
-                    border: "1px solid var(--rn-seal)",
-                    color: "var(--rn-seal)",
+                    border: "1px solid var(--rn-alert)",
+                    color: "var(--rn-alert)",
                     background: "transparent",
                   }}
                 >
@@ -148,7 +148,7 @@ export default function ArsipPage() {
           style={{
             fontFamily: "var(--font-mono, monospace)",
             fontSize: "0.75rem",
-            color: "var(--rn-gold)",
+            color: "var(--rn-accent)",
             textDecoration: "underline",
           }}
         >

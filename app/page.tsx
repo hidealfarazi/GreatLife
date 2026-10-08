@@ -116,16 +116,17 @@ export default function HomePage() {
         {/* Today section */}
         <div>
           <div style={{ display: "flex", alignItems: "baseline", gap: "0.75rem", marginBottom: "1rem" }}>
-            <span style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--rn-gold)", lineHeight: 1 }}>今日</span>
             <span
               style={{
                 fontFamily: "var(--font-mono, monospace)",
-                fontSize: "0.6875rem",
-                letterSpacing: "0.12em",
-                color: "var(--rn-muted)",
+                fontSize: "0.75rem",
+                letterSpacing: "0.15em",
+                color: "var(--rn-accent)",
+                textTransform: "uppercase",
+                fontWeight: 700,
               }}
             >
-              HARI INI
+              02 / 03 — HARI INI
             </span>
           </div>
           <AssignmentList />
@@ -161,7 +162,7 @@ export default function HomePage() {
                 gap: "0.25rem",
                 minHeight: "56px",
                 padding: "0.5rem 0",
-                color: isActive ? "var(--rn-gold)" : "var(--rn-muted)",
+                color: isActive ? "var(--rn-accent)" : "var(--rn-muted)",
               }}
               aria-current={isActive ? "page" : undefined}
             >

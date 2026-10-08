@@ -2,7 +2,7 @@
  * components/SwipeRow.tsx
  * Adapted from React Bits SwipeRow — borderless version.
  * Swipe left to reveal Arsip / Hapus. Flat sharp blocks only when swiped.
- * Tokens: rn-bg, rn-text, rn-muted, rn-gold, rn-seal. No cards/shadows.
+ * Tokens: rn-bg, rn-text, rn-muted, rn-accent, rn-alert. No cards/shadows.
  */
 "use client";
 
@@ -108,8 +108,8 @@ export function SwipeRow({ children, onArchive, onDelete, ariaLabel = "Baris tug
           }}
           style={{
             width: ACTION_W,
-            background: "var(--rn-gold)",
-            color: "#12100E",
+            background: "var(--rn-accent)",
+            color: "#0B0D10",
             fontFamily: "var(--font-mono, monospace)",
             fontSize: "0.7rem",
             letterSpacing: "0.08em",
@@ -134,7 +134,7 @@ export function SwipeRow({ children, onArchive, onDelete, ariaLabel = "Baris tug
           }}
           style={{
             width: ACTION_W,
-            background: "var(--rn-seal)",
+            background: "var(--rn-alert)",
             color: "#fff",
             fontFamily: "var(--font-mono, monospace)",
             fontSize: "0.7rem",
@@ -178,21 +178,24 @@ export function SwipeRow({ children, onArchive, onDelete, ariaLabel = "Baris tug
           aria-expanded={open}
           style={{
             flexShrink: 0,
-            width: 44,
+            width: 56,
             minHeight: 44,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "var(--rn-muted)",
+            color: open ? "var(--rn-text)" : "var(--rn-accent)",
+            background: open ? "rgba(143, 163, 191, 0.12)" : "transparent",
             fontFamily: "var(--font-mono, monospace)",
-            fontSize: "0.65rem",
+            fontSize: "0.7rem",
+            fontWeight: 600,
             letterSpacing: "0.08em",
             textTransform: "uppercase",
-            borderLeft: "1px solid rgba(168,159,140,0.15)",
-            background: "transparent",
+            border: "none",
+            borderRadius: 0,
+            cursor: "pointer",
           }}
         >
-          {open ? "✕" : "⋮"}
+          {open ? "✕" : "Aksi"}
         </button>
       </div>
     </div>

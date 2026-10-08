@@ -69,8 +69,8 @@ export function MaterialList() {
           style={{
             minHeight: 44,
             padding: "0 1rem",
-            background: "var(--rn-gold)",
-            color: "#12100E",
+            background: "var(--rn-accent)",
+            color: "#0B0D10",
             border: "none",
             fontFamily: "var(--font-mono, monospace)",
             fontSize: "0.75rem",

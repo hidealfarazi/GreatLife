@@ -25,7 +25,7 @@ export function AssignmentDetailClient({ id }: { id: string }) {
     return (
       <div style={{ padding: "2rem", color: "var(--rn-text)" }}>
         <p>Tugas tidak ditemukan.</p>
-        <Link href="/pr" style={{ color: "var(--rn-gold)" }}>
+        <Link href="/pr" style={{ color: "var(--rn-accent)" }}>
           ← Kembali ke PR
         </Link>
       </div>
@@ -86,7 +86,7 @@ export function AssignmentDetailClient({ id }: { id: string }) {
               fontFamily: "var(--font-mono, monospace)",
               fontSize: "0.7rem",
               letterSpacing: "0.1em",
-              color: "var(--rn-gold)",
+              color: "var(--rn-accent)",
               textTransform: "uppercase",
               marginBottom: "0.5rem",
             }}
@@ -146,7 +146,7 @@ export function AssignmentDetailClient({ id }: { id: string }) {
           style={{
             fontFamily: "var(--font-mono, monospace)",
             fontSize: "0.75rem",
-            color: "var(--rn-gold)",
+            color: "var(--rn-accent)",
             textDecoration: "underline",
           }}
         >

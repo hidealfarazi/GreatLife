@@ -49,8 +49,8 @@ export function SpringCheck({ label, checked, onChange, ariaLabel }: SpringCheck
             width: 26,
             height: 26,
             borderRadius: 0,
-            border: `1.5px solid ${checked ? "var(--rn-gold)" : "var(--rn-muted)"}`,
-            background: checked ? "var(--rn-gold)" : "transparent",
+            border: `1.5px solid ${checked ? "var(--rn-accent)" : "var(--rn-muted)"}`,
+            background: checked ? "var(--rn-accent)" : "transparent",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -58,7 +58,7 @@ export function SpringCheck({ label, checked, onChange, ariaLabel }: SpringCheck
         >
           {checked && (
             <svg width={16} height={16} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d={TICK_PATH} stroke="#12100E" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" />
+              <path d={TICK_PATH} stroke="#0B0D10" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           )}
         </span>
@@ -74,8 +74,8 @@ export function SpringCheck({ label, checked, onChange, ariaLabel }: SpringCheck
             width: 26,
             height: 26,
             borderRadius: 0,
-            border: `1.5px solid ${checked ? "var(--rn-gold)" : "var(--rn-muted)"}`,
-            background: checked ? "var(--rn-gold)" : "transparent",
+            border: `1.5px solid ${checked ? "var(--rn-accent)" : "var(--rn-muted)"}`,
+            background: checked ? "var(--rn-accent)" : "transparent",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",

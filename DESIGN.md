@@ -1,36 +1,29 @@
-# DESIGN.md — Japanese-Javanese (current direction)
+# DESIGN.md — Direction (Quiet Grotesk / Rainy Night)
 
-Bold, calm, personal. NO rain, NO video. Warm ink-black, giant serif type, Javanese batik
-used as VISUAL only (never Javanese text or aksara), Japanese accents (kanji, hanko seal).
-Reference implementation: app/globals.css, components/Today.tsx, components/Motif.tsx.
+Bold, calm, personal, borderless. Deep near-black, giant grotesk type, single steel-blue accent, dynamic rain atmosphere.
 
 ## Tokens
-bg #12100E | text #EFE6D2 | muted #A89F8C | gold #C9A24B | sogan #8A5A2B | seal #C23B2A
-Seal red only for the hanko stamp and deadlines under 1 hour.
+- bg: `#0B0D10` (deep ink black)
+- text: `#F2F2EE` (off-white)
+- muted: `#8B93A0` (cool slate grey)
+- accent: `#8FA3BF` (single steel-blue accent)
+- amber: `#E3B87A` (due within 4 hours)
+- alert: `#D9776B` (due within 1 hour)
 
-## Type
-Shippori Mincho 800: giant headlines + subject names. Geist: body (16px+). Geist Mono: labels, times.
-Mono uppercase labels are fine but must follow one consistent pattern.
+## Typography
+- Display / Headings: `Space Grotesk` (700/800 bold, clamp responsive)
+- Body: `Geist` (16px+)
+- Labels & Times: `Geist Mono` (one consistent uppercase mono pattern)
 
-## Borderless rules
-- No cards, boxes, shadows, glow, blur, glass. Separate with whitespace, huge type, one 1px hairline under section headings.
-- Lists are full-width text rows. Touch/hover = row shifts 8px right + subject turns gold.
-- Progress = thin gold line ending in a small diamond (kawung nod). Never a boxed bar.
+## Borderless Rules
+- No cards, no boxed containers, no shadows, no glow, no blur glass.
+- Separation achieved with whitespace, large confident type, and single 1px hairline rules (`rgba(143, 163, 191, 0.15)` or `rgba(139, 147, 160, 0.2)`).
+- Full-width text rows. 
+- Progress shown via Comet Dial (read-only, mono numbers).
+- React Bits components must have transparent background, 0 radius, no shadows.
 
-## Motifs
-Kawung pattern (faint, fades into solid), hanko seal 学, vertical proverb text, kanji labels 今日 明日.
-UI copy: Indonesian only, paired with kanji labels.
-
-## Motion
-Text reveal on load (staggered), progress line draws in, row shift on touch. 400-900ms ease-out.
-Nothing loops. Respect prefers-reduced-motion.
-
-## Mobile first
-Design at 390px first. Touch targets >= 44px. Content max-width 36rem, centered on desktop.
-
-## Checklist before merging UI
-- [ ] No cards/borders/shadows/glow introduced
-- [ ] Only tokens above (no new random colors)
-- [ ] Indonesian copy, real dynamic dates
-- [ ] Looks right at 390px
-- [ ] Headline/subject type stays big and confident
+## Mobile First
+- Primary viewport: 390px.
+- Touch targets >= 44px.
+- Content max-width 36rem centered on desktop.
+- Respects `prefers-reduced-motion`.

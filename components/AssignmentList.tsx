@@ -92,7 +92,9 @@ export function AssignmentList() {
         ) : (
           items.map((item) => {
             const mins = minutesUntil(item.dueAt);
-            const urgent = mins >= 0 && mins < 60;
+            const alert = mins >= 0 && mins < 60;
+            const amber = mins >= 60 && mins < 240;
+            const statusColor = alert ? "var(--rn-alert)" : amber ? "var(--rn-amber)" : "var(--rn-accent)";
             const progress = progressOf(item);
             return (
               <div key={item.id} role="listitem">
@@ -134,7 +136,7 @@ export function AssignmentList() {
                               fontFamily: "var(--font-mono, monospace)",
                               fontSize: "0.6875rem",
                               letterSpacing: "0.1em",
-                              color: urgent ? "var(--rn-seal)" : "var(--rn-gold)",
+                              color: statusColor,
                               textTransform: "uppercase",
                             }}
                           >
@@ -144,7 +146,7 @@ export function AssignmentList() {
                             style={{
                               fontFamily: "var(--font-mono, monospace)",
                               fontSize: "0.6875rem",
-                              color: urgent ? "var(--rn-seal)" : "var(--rn-muted)",
+                              color: statusColor,
                               letterSpacing: "0.05em",
                               flexShrink: 0,
                             }}

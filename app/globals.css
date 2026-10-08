@@ -1,7 +1,5 @@
 /* =============================================================
-   globals.css — Belajar base reset
-   Lab routes use their own scoped CSS modules.
-   DESIGN.md tokens kept here for future production use.
+   globals.css — Belajar base reset & design tokens
    ============================================================= */
 
 *, *::before, *::after {
@@ -11,18 +9,20 @@
 }
 
 :root {
-  /* DESIGN.md production tokens */
-  --rn-bg:     #12100E;
-  --rn-text:   #EFE6D2;
-  --rn-muted:  #A89F8C;
-  --rn-gold:   #C9A24B;
-  --rn-sogan:  #8A5A2B;
-  --rn-seal:   #C23B2A;
+  /* New direction tokens */
+  --rn-bg:      #0B0D10;
+  --rn-text:    #F2F2EE;
+  --rn-muted:   #8B93A0;
+  --rn-accent:  #8FA3BF;
+  --rn-amber:   #E3B87A;
+  --rn-alert:   #D9776B;
 }
 
 html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
+  background: var(--rn-bg);
+  color: var(--rn-text);
 }
 
 body {
@@ -31,6 +31,11 @@ body {
   min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-family: var(--font-body, system-ui, sans-serif);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display, sans-serif);
 }
 
 a {

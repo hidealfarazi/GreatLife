@@ -53,7 +53,7 @@ export function CometDial({ value, size = 44, className = "" }: CometDialProps) 
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="var(--rn-gold)"
+          stroke="var(--rn-accent)"
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}

@@ -79,7 +79,7 @@ export default function MorePage() {
           style={{
             fontFamily: "var(--font-mono, monospace)",
             fontSize: "0.75rem",
-            color: "var(--rn-gold)",
+            color: "var(--rn-accent)",
             textDecoration: "underline",
           }}
         >
