@@ -107,10 +107,11 @@ export function AssignmentList() {
                     href={`/pr/${item.id}`}
                     style={{
                       display: "block",
-                      padding: "1.25rem 0.5rem 1.25rem 0",
+                      padding: "1.25rem 0",
                       borderBottom: "1px solid rgba(168, 159, 140, 0.2)",
                       textDecoration: "none",
                       color: "inherit",
+                      maxWidth: "100%",
                     }}
                   >
                     <div

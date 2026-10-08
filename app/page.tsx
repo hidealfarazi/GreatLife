@@ -104,7 +104,7 @@ export default function HomePage() {
         </p>
 
         {/* Hairline */}
-        <div style={{ height: "1px", background: "rgba(168, 159, 140, 0.2)", width: "100%" }} />
+        <div style={{ height: "1px", background: "rgba(168, 159, 140, 0.2)", width: "100%", margin: 0 }} />
 
         {/* Today section */}
         <div>

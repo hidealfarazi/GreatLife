@@ -165,7 +165,7 @@ export function SwipeRow({ children, onArchive, onDelete, ariaLabel = "Baris tug
         onPointerCancel={onPointerUp}
         style={{
           position: "relative",
-          background: "#0B0D10",
+          background: "transparent",
           transform: `translateX(${offset}px)`,
           transition: dragging.current ? "none" : "transform 200ms ease-out",
           display: "flex",
