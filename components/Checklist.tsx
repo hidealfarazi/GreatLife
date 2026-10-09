@@ -120,26 +120,32 @@ export function Checklist({
         )}
       </div>
 
-      {/* Add new item form */}
+      {/* Add new item form — borderless: underline only, text button */}
       <form
         onSubmit={handleAdd}
         style={{
           display: "flex",
-          gap: "0.5rem",
-          marginTop: "1rem",
+          alignItems: "flex-end",
+          gap: "0.75rem",
+          marginTop: "1.25rem",
+          paddingBottom: "0.4rem",
+          borderBottom: "1px solid rgba(168, 159, 140, 0.3)",
         }}
       >
         <input
           type="text"
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
-          placeholder={`Tambah ${title.toLowerCase()} baru...`}
+          placeholder={`Tambah ${title.toLowerCase()} baru…`}
+          aria-label={`Tambah ${title.toLowerCase()} baru`}
           style={{
             flex: 1,
             background: "transparent",
-            border: "1px solid rgba(168, 159, 140, 0.3)",
+            border: "none",
+            borderRadius: 0,
             color: "var(--rn-text)",
-            padding: "0.5rem 0.75rem",
+            padding: "0.5rem 0",
+            fontFamily: "var(--font-body, sans-serif)",
             fontSize: "0.875rem",
             minHeight: 44,
             outline: "none",
@@ -148,15 +154,19 @@ export function Checklist({
         <button
           type="submit"
           style={{
+            flexShrink: 0,
             minHeight: 44,
-            padding: "0 1rem",
-            background: "var(--rn-accent)",
-            color: "#0B0D10",
+            padding: "0 0.25rem",
+            background: "transparent",
+            color: "var(--rn-accent)",
             border: "none",
             fontFamily: "var(--font-mono, monospace)",
             fontSize: "0.75rem",
             fontWeight: 700,
+            letterSpacing: "0.08em",
             textTransform: "uppercase",
+            textDecoration: "underline",
+            textUnderlineOffset: "3px",
             cursor: "pointer",
           }}
         >

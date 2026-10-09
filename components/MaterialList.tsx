@@ -39,27 +39,33 @@ export function MaterialList() {
 
   return (
     <div>
-      {/* Form tambah materi */}
+      {/* Form tambah materi — tanpa kotak, hanya garis bawah */}
       <form
         onSubmit={handleCreate}
         style={{
           display: "flex",
-          gap: "0.5rem",
-          marginBottom: "2rem",
+          alignItems: "flex-end",
+          gap: "0.75rem",
+          marginBottom: "2.25rem",
+          paddingBottom: "0.5rem",
+          borderBottom: "1px solid rgba(168, 159, 140, 0.3)",
         }}
       >
         <input
           type="text"
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
-          placeholder="Judul materi baru..."
+          placeholder="Tambah materi baru…"
+          aria-label="Judul materi baru"
           style={{
             flex: 1,
             background: "transparent",
-            border: "1px solid rgba(168, 159, 140, 0.3)",
+            border: "none",
+            borderRadius: 0,
             color: "var(--rn-text)",
-            padding: "0.5rem 0.75rem",
-            fontSize: "0.875rem",
+            padding: "0.5rem 0 0.6rem",
+            fontFamily: "var(--font-body, sans-serif)",
+            fontSize: "0.9375rem",
             minHeight: 44,
             outline: "none",
           }}
@@ -67,15 +73,19 @@ export function MaterialList() {
         <button
           type="submit"
           style={{
+            flexShrink: 0,
             minHeight: 44,
-            padding: "0 1rem",
-            background: "var(--rn-accent)",
-            color: "#0B0D10",
+            padding: "0 0.25rem",
+            background: "transparent",
+            color: "var(--rn-accent)",
             border: "none",
             fontFamily: "var(--font-mono, monospace)",
             fontSize: "0.75rem",
             fontWeight: 700,
+            letterSpacing: "0.08em",
             textTransform: "uppercase",
+            textDecoration: "underline",
+            textUnderlineOffset: "3px",
             cursor: "pointer",
           }}
         >
