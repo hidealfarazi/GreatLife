@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PageHead } from "@/components/PageHead";
 
 export default function MorePage() {
   return (
@@ -7,22 +8,20 @@ export default function MorePage() {
         background: "transparent",
         color: "var(--rn-text)",
         minHeight: "100dvh",
-        padding: "2rem 1.5rem 6rem",
+        padding: "2.5rem 1.5rem 6rem",
         maxWidth: "36rem",
         margin: "0 auto",
+        display: "flex",
+        flexDirection: "column",
+        gap: "2rem",
       }}
     >
-      <h1 style={{ fontSize: "2rem", fontWeight: 800, marginBottom: "0.5rem" }}>Lainnya</h1>
-      <p
-        style={{
-          fontFamily: "var(--font-mono, monospace)",
-          fontSize: "0.75rem",
-          color: "var(--rn-muted)",
-          marginBottom: "2rem",
-        }}
-      >
-        Pengaturan & alat bantu
-      </p>
+      <PageHead
+        counter="03 / 03"
+        section="LAINNYA"
+        title="Lainnya"
+        sub="Pengaturan & alat bantu"
+      />
 
       <nav style={{ display: "flex", flexDirection: "column", gap: "0" }}>
         <Link
@@ -72,8 +71,6 @@ export default function MorePage() {
           </span>
         </Link>
       </nav>
-
-
     </div>
   );
 }

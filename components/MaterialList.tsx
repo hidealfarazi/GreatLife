@@ -95,7 +95,21 @@ export function MaterialList() {
 
       {/* Daftar materi */}
       {materials.length === 0 ? (
-        <p style={{ color: "var(--rn-muted)", fontStyle: "italic" }}>Belum ada materi.</p>
+        <div
+          style={{
+            padding: "3rem 1rem",
+            textAlign: "center",
+            border: "1px dashed rgba(143, 163, 191, 0.2)",
+            marginTop: "1rem",
+          }}
+        >
+          <p style={{ fontFamily: "var(--font-mono, monospace)", fontSize: "0.75rem", color: "var(--rn-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+            Belum ada materi belajar
+          </p>
+          <p style={{ fontSize: "0.85rem", color: "var(--rn-muted)", marginTop: "0.5rem" }}>
+            Tulis judul di atas untuk mulai mencatat istilah dan checkpoint.
+          </p>
+        </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
           {materials.map((mat) => {

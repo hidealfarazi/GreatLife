@@ -51,7 +51,20 @@ export default function ArsipPage() {
       />
 
       {archived.length === 0 ? (
-        <p style={{ color: "var(--rn-muted)", fontStyle: "italic" }}>Belum ada tugas diarsipkan.</p>
+        <div
+          style={{
+            padding: "3rem 1rem",
+            textAlign: "center",
+            border: "1px dashed rgba(143, 163, 191, 0.2)",
+          }}
+        >
+          <p style={{ fontFamily: "var(--font-mono, monospace)", fontSize: "0.75rem", color: "var(--rn-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+            Arsip kosong
+          </p>
+          <p style={{ fontSize: "0.85rem", color: "var(--rn-muted)", marginTop: "0.5rem" }}>
+            Tugas yang diselesaikan dan diarsipkan akan muncul di sini.
+          </p>
+        </div>
       ) : (
         <div role="list" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           {archived.map((item) => (
