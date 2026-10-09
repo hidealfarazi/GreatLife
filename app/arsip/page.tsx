@@ -1,11 +1,12 @@
 /**
- * app/arsip/page.tsx — Arsip tugas terarsip dengan aksi Pulihkan dan Hapus permanen.
+ * app/arsip/page.tsx — Arsip tugas
  */
 "use client";
 
 import { useState } from "react";
 import { listAssignments, restoreAssignment, deleteAssignment } from "@/lib/repo";
 import type { Assignment } from "@/lib/types";
+import { PageHead } from "@/components/PageHead";
 
 export default function ArsipPage() {
   const [archived, setArchived] = useState<Assignment[]>(() =>
@@ -34,22 +35,20 @@ export default function ArsipPage() {
         background: "transparent",
         color: "var(--rn-text)",
         minHeight: "100dvh",
-        padding: "2rem 1.5rem 6rem",
+        padding: "2.5rem 1.5rem 6rem",
         maxWidth: "36rem",
         margin: "0 auto",
+        display: "flex",
+        flexDirection: "column",
+        gap: "2rem",
       }}
     >
-      <h1 style={{ fontSize: "2rem", fontWeight: 800, marginBottom: "0.5rem" }}>Arsip</h1>
-      <p
-        style={{
-          fontFamily: "var(--font-mono, monospace)",
-          fontSize: "0.75rem",
-          color: "var(--rn-muted)",
-          marginBottom: "2rem",
-        }}
-      >
-        Tugas yang telah selesai dan diarsipkan ({archived.length})
-      </p>
+      <PageHead
+        counter="03 / 03"
+        section="ARSIP"
+        title="Arsip"
+        sub={`Tugas yang telah diarsipkan (${archived.length})`}
+      />
 
       {archived.length === 0 ? (
         <p style={{ color: "var(--rn-muted)", fontStyle: "italic" }}>Belum ada tugas diarsipkan.</p>
@@ -115,6 +114,7 @@ export default function ArsipPage() {
                     border: "1px solid var(--rn-muted)",
                     color: "var(--rn-text)",
                     background: "transparent",
+                    cursor: "pointer",
                   }}
                 >
                   Pulihkan
@@ -131,6 +131,7 @@ export default function ArsipPage() {
                     border: "1px solid var(--rn-alert)",
                     color: "var(--rn-alert)",
                     background: "transparent",
+                    cursor: "pointer",
                   }}
                 >
                   Hapus
@@ -140,8 +141,6 @@ export default function ArsipPage() {
           ))}
         </div>
       )}
-
-
     </div>
   );
 }

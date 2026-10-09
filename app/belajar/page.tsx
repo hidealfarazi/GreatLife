@@ -1,7 +1,7 @@
 /**
- * app/belajar/page.tsx — Materi belajar (Task 5 optional)
+ * app/belajar/page.tsx — Materi belajar
  */
-
+import { PageHead } from "@/components/PageHead";
 import { MaterialList } from "@/components/MaterialList";
 
 export default function BelajarPage() {
@@ -11,26 +11,21 @@ export default function BelajarPage() {
         background: "transparent",
         color: "var(--rn-text)",
         minHeight: "100dvh",
-        padding: "2rem 1.5rem 6rem",
+        padding: "2.5rem 1.5rem 6rem",
         maxWidth: "36rem",
         margin: "0 auto",
+        display: "flex",
+        flexDirection: "column",
+        gap: "2rem",
       }}
     >
-      <h1 style={{ fontSize: "2rem", fontWeight: 800, marginBottom: "0.5rem" }}>Belajar</h1>
-      <p
-        style={{
-          fontFamily: "var(--font-mono, monospace)",
-          fontSize: "0.75rem",
-          color: "var(--rn-muted)",
-          marginBottom: "2rem",
-        }}
-      >
-        Daftar materi & istilah penting
-      </p>
-
+      <PageHead
+        counter="03 / 03"
+        section="BELAJAR"
+        title="Belajar"
+        sub="Daftar materi & istilah penting"
+      />
       <MaterialList />
-
-
     </div>
   );
 }
