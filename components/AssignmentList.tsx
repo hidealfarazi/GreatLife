@@ -90,7 +90,7 @@ export function AssignmentList() {
             Belum ada tugas aktif.
           </p>
         ) : (
-          items.map((item) => {
+          items.map((item, index) => {
             const mins = minutesUntil(item.dueAt);
             const alert = mins >= 0 && mins < 60;
             const amber = mins >= 60 && mins < 240;
@@ -100,6 +100,7 @@ export function AssignmentList() {
               <div key={item.id} role="listitem">
                 <SwipeRow
                   ariaLabel={`Tugas ${item.title}`}
+                  isFirst={index === 0}
                   onArchive={() => handleArchive(item.id)}
                   onDelete={() => handleDeleteRequest(item)}
                 >
