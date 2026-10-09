@@ -23,11 +23,27 @@ export function AssignmentDetailClient({ id }: { id: string }) {
 
   if (!assignment) {
     return (
-      <div style={{ padding: "2rem", color: "var(--rn-text)" }}>
-        <p>Tugas tidak ditemukan.</p>
-        <Link href="/pr" style={{ color: "var(--rn-accent)" }}>
-          ← Kembali ke PR
+      <div style={{ padding: "2rem 1.5rem", color: "var(--rn-text)", maxWidth: "36rem", margin: "0 auto" }}>
+        <Link
+          href="/pr"
+          aria-label="Kembali ke PR"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 44,
+            height: 44,
+            marginLeft: "-0.5rem",
+            color: "var(--rn-text)",
+            textDecoration: "none",
+            marginBottom: "1rem",
+          }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
         </Link>
+        <p style={{ color: "var(--rn-muted)" }}>Tugas tidak ditemukan.</p>
       </div>
     );
   }
@@ -71,6 +87,39 @@ export function AssignmentDetailClient({ id }: { id: string }) {
         margin: "0 auto",
       }}
     >
+      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
+        <Link
+          href="/pr"
+          aria-label="Kembali ke PR"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 44,
+            height: 44,
+            marginLeft: "-0.5rem",
+            color: "var(--rn-text)",
+            textDecoration: "none",
+            flexShrink: 0,
+          }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </Link>
+        <span
+          style={{
+            fontFamily: "var(--font-mono, monospace)",
+            fontSize: "0.7rem",
+            letterSpacing: "0.1em",
+            color: "var(--rn-accent)",
+            textTransform: "uppercase",
+          }}
+        >
+          {assignment.subject}
+        </span>
+      </div>
+
       <div
         style={{
           display: "flex",
@@ -81,18 +130,6 @@ export function AssignmentDetailClient({ id }: { id: string }) {
         }}
       >
         <div style={{ flex: 1 }}>
-          <p
-            style={{
-              fontFamily: "var(--font-mono, monospace)",
-              fontSize: "0.7rem",
-              letterSpacing: "0.1em",
-              color: "var(--rn-accent)",
-              textTransform: "uppercase",
-              marginBottom: "0.5rem",
-            }}
-          >
-            {assignment.subject}
-          </p>
           <h1 style={{ fontSize: "clamp(1.75rem, 8vw, 2.75rem)", fontWeight: 800, lineHeight: 1.1 }}>
             {assignment.title}
           </h1>
@@ -140,19 +177,7 @@ export function AssignmentDetailClient({ id }: { id: string }) {
         summaryText={`${bringsDone}/${brings.length} siap`}
       />
 
-      <div>
-        <Link
-          href="/pr"
-          style={{
-            fontFamily: "var(--font-mono, monospace)",
-            fontSize: "0.75rem",
-            color: "var(--rn-accent)",
-            textDecoration: "underline",
-          }}
-        >
-          ← Kembali ke PR
-        </Link>
-      </div>
+
     </div>
   );
 }

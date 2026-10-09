@@ -4,7 +4,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { listAssignments, restoreAssignment, deleteAssignment } from "@/lib/repo";
 import type { Assignment } from "@/lib/types";
 
@@ -142,19 +141,7 @@ export default function ArsipPage() {
         </div>
       )}
 
-      <div style={{ marginTop: "2rem" }}>
-        <Link
-          href="/"
-          style={{
-            fontFamily: "var(--font-mono, monospace)",
-            fontSize: "0.75rem",
-            color: "var(--rn-accent)",
-            textDecoration: "underline",
-          }}
-        >
-          ← Kembali ke Hari Ini
-        </Link>
-      </div>
+
     </div>
   );
 }

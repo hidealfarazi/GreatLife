@@ -73,19 +73,7 @@ export default function MorePage() {
         </Link>
       </nav>
 
-      <div style={{ marginTop: "2rem" }}>
-        <Link
-          href="/"
-          style={{
-            fontFamily: "var(--font-mono, monospace)",
-            fontSize: "0.75rem",
-            color: "var(--rn-accent)",
-            textDecoration: "underline",
-          }}
-        >
-          ← Kembali ke Hari Ini
-        </Link>
-      </div>
+
     </div>
   );
 }

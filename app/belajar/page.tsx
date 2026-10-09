@@ -2,7 +2,6 @@
  * app/belajar/page.tsx — Materi belajar (Task 5 optional)
  */
 
-import Link from "next/link";
 import { MaterialList } from "@/components/MaterialList";
 
 export default function BelajarPage() {
@@ -31,19 +30,7 @@ export default function BelajarPage() {
 
       <MaterialList />
 
-      <div style={{ marginTop: "2rem" }}>
-        <Link
-          href="/"
-          style={{
-            fontFamily: "var(--font-mono, monospace)",
-            fontSize: "0.75rem",
-            color: "var(--rn-accent)",
-            textDecoration: "underline",
-          }}
-        >
-          ← Kembali ke Hari Ini
-        </Link>
-      </div>
+
     </div>
   );
 }
