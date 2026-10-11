@@ -5,6 +5,7 @@ import { AI_BRIEF } from "@/lib/repo";
 import { getGreeting, formatDate } from "@/lib/mock";
 import { TechText } from "@/components/TechText";
 import { AssignmentList } from "@/components/AssignmentList";
+import { WeeklyStrip } from "@/components/WeeklyStrip";
 import { RainBackground } from "@/components/RainBackground";
 
 export default function HomePage() {
@@ -110,6 +111,7 @@ export default function HomePage() {
 
         {/* Today section — judul grup + jumlah datang dari AssignmentList */}
         <AssignmentList />
+        <WeeklyStrip />
       </main>
     </div>
   );
