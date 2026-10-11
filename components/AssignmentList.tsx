@@ -16,6 +16,7 @@ import {
   listChecklist,
 } from "@/lib/repo";
 import { formatTime, minutesUntil } from "@/lib/mock";
+import { subjectColor } from "@/lib/subjectColors";
 import type { Assignment } from "@/lib/types";
 import { CometDial } from "@/components/CometDial";
 import { SwipeRow } from "@/components/SwipeRow";
@@ -249,18 +250,31 @@ export function AssignmentList() {
                                 gap: "0.75rem",
                               }}
                             >
-                              <span
-                                style={{
-                                  fontFamily: "var(--font-mono, monospace)",
-                                  fontSize: "0.6875rem",
-                                  letterSpacing: "0.1em",
-                                  color: statusColor,
-                                  textTransform: "uppercase",
-                                  fontWeight: isOverdue ? 800 : 500,
-                                }}
-                              >
-                                {item.subject} {isOverdue ? "· TERLAMBAT" : ""}
-                              </span>
+                              <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                                <span
+                                  aria-hidden="true"
+                                  style={{
+                                    display: "inline-block",
+                                    width: "2px",
+                                    height: "0.75rem",
+                                    backgroundColor: subjectColor(item.subject),
+                                    borderRadius: "1px",
+                                    flexShrink: 0,
+                                  }}
+                                />
+                                <span
+                                  style={{
+                                    fontFamily: "var(--font-mono, monospace)",
+                                    fontSize: "0.6875rem",
+                                    letterSpacing: "0.1em",
+                                    color: statusColor,
+                                    textTransform: "uppercase",
+                                    fontWeight: isOverdue ? 800 : 500,
+                                  }}
+                                >
+                                  {item.subject} {isOverdue ? "· TERLAMBAT" : ""}
+                                </span>
+                              </div>
                               <span
                                 style={{
                                   fontFamily: "var(--font-mono, monospace)",

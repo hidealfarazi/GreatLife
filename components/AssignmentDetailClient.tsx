@@ -14,6 +14,7 @@ import {
   deleteChecklistItem,
 } from "@/lib/repo";
 import { formatTime, formatDate } from "@/lib/mock";
+import { subjectColor } from "@/lib/subjectColors";
 import { CometDial } from "@/components/CometDial";
 import { Checklist } from "@/components/Checklist";
 
@@ -107,17 +108,30 @@ export function AssignmentDetailClient({ id }: { id: string }) {
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </Link>
-        <span
-          style={{
-            fontFamily: "var(--font-mono, monospace)",
-            fontSize: "0.7rem",
-            letterSpacing: "0.1em",
-            color: "var(--rn-accent)",
-            textTransform: "uppercase",
-          }}
-        >
-          {assignment.subject}
-        </span>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+          <span
+            aria-hidden="true"
+            style={{
+              display: "inline-block",
+              width: "2px",
+              height: "0.75rem",
+              backgroundColor: subjectColor(assignment.subject),
+              borderRadius: "1px",
+              flexShrink: 0,
+            }}
+          />
+          <span
+            style={{
+              fontFamily: "var(--font-mono, monospace)",
+              fontSize: "0.7rem",
+              letterSpacing: "0.1em",
+              color: "var(--rn-accent)",
+              textTransform: "uppercase",
+            }}
+          >
+            {assignment.subject}
+          </span>
+        </div>
       </div>
 
       <div

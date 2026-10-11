@@ -6,6 +6,7 @@
 import { useState } from "react";
 import { listAssignments, restoreAssignment, deleteAssignment } from "@/lib/repo";
 import type { Assignment } from "@/lib/types";
+import { subjectColor } from "@/lib/subjectColors";
 import { PageHead } from "@/components/PageHead";
 
 export default function ArsipPage() {
@@ -81,17 +82,30 @@ export default function ArsipPage() {
               }}
             >
               <div style={{ flex: 1, minWidth: 0 }}>
-                <span
-                  style={{
-                    fontFamily: "var(--font-mono, monospace)",
-                    fontSize: "0.6875rem",
-                    letterSpacing: "0.1em",
-                    color: "var(--rn-accent)",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  {item.subject}
-                </span>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      display: "inline-block",
+                      width: "2px",
+                      height: "0.75rem",
+                      backgroundColor: subjectColor(item.subject),
+                      borderRadius: "1px",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono, monospace)",
+                      fontSize: "0.6875rem",
+                      letterSpacing: "0.1em",
+                      color: "var(--rn-accent)",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {item.subject}
+                  </span>
+                </div>
                 <p
                   style={{
                     fontSize: "1.05rem",
