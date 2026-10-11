@@ -24,14 +24,18 @@ Next.js App Router + TypeScript (strict), plain CSS classes prefixed `rn-` in ap
 1. TypeScript strict. No `any`, no `// @ts-ignore`. Fix type errors properly.
 2. BORDERLESS design: no cards, boxes, shadows, glow, blur, glass. See docs/DESIGN.md.
 3. Use existing CSS variables and `rn-` classes. No new colors. No decorative effects.
-4. No rain, no video backgrounds, no aksara Jawa or Javanese-language text.
+4. Video hujan HANYA di hero halaman Hari Ini (memudar ke latar polos saat scroll).
+   Halaman lain berlatar polos. Tanpa aksara Jawa, tulisan Jawa, motif batik, atau kanji.
 5. Keep ALL data access behind `lib/repo.ts` (mock now, Supabase later). Pages never call a DB directly.
 6. Do NOT touch auth, RLS, Supabase config, env files, or API keys unless the task explicitly says so.
 7. AI/API keys only on the server (route handlers). Never in client code.
 8. No new dependencies without saying why first.
 9. Mobile first (390px), touch targets >= 44px, respect prefers-reduced-motion.
 10. Dates: real dynamic dates, Indonesian locale. No fake placeholder data in final UI.
-
+11. Folder lib/ai/ dan app/api/ai/ adalah backend AI milik pemilik. JANGAN diubah, dihapus,
+    atau dipindah. Jangan membuat file lib/ai.ts (bentrok dengan folder lib/ai/). Data
+    contoh/mock ditaruh di lib/mock/. Kunci API tidak boleh muncul di kode klien.
+    
 ## Model roles (Antigravity)
 - Claude Sonnet: schema/RLS, auth, AI route, security review, tricky UI.
 - Gemini Flash: repetitive CRUD, simple pages, refactors, fixing build/lint errors.
