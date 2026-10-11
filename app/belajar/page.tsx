@@ -2,7 +2,7 @@
  * app/belajar/page.tsx — Materi belajar
  */
 import { PageHead } from "@/components/PageHead";
-import { MaterialList } from "@/components/MaterialList";
+import { BelajarClient } from "@/components/BelajarClient";
 
 export default function BelajarPage() {
   return (
@@ -16,7 +16,7 @@ export default function BelajarPage() {
         margin: "0 auto",
         display: "flex",
         flexDirection: "column",
-        gap: "2rem",
+        gap: "2.5rem",
       }}
     >
       <PageHead
@@ -25,7 +25,7 @@ export default function BelajarPage() {
         title="Belajar"
         sub="Peta kesiapan, fokus harian, & materi"
       />
-      <MaterialList />
+      <BelajarClient />
     </div>
   );
 }

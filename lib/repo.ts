@@ -5,6 +5,12 @@
  */
 
 import { Assignment, ChecklistItem, ChecklistKind, Checkpoint, Material, Subject } from "./types";
+import { INITIAL_FOCUS, INITIAL_SKILL_NODES, LearningFocus, SkillNode } from "./mock/learning";
+
+function todayKey(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
 
 const now = new Date();
 const todayAt = (h: number, m: number): Date => {
@@ -247,3 +253,76 @@ export function createMaterial(title: string, subjectId?: string): Material {
   materials.push(mat);
   return mat;
 }
+
+// ==========================================
+// Learning Focus & Skill Path (Tugas 4 & 5)
+// ==========================================
+
+const learningFocusStore: Record<string, LearningFocus> = {
+  [todayKey()]: { ...INITIAL_FOCUS },
+};
+
+let skillNodes: SkillNode[] = [...INITIAL_SKILL_NODES];
+
+export function getTodayLearningFocus(): LearningFocus {
+  const key = todayKey();
+  if (!learningFocusStore[key]) {
+    learningFocusStore[key] = { ...INITIAL_FOCUS };
+  }
+  return learningFocusStore[key];
+}
+
+export function refreshLearningFocus(): LearningFocus {
+  const key = todayKey();
+  // Alternating mock focus when refreshed
+  const isAlt = learningFocusStore[key]?.title.includes("Server Components");
+  const updated: LearningFocus = isAlt
+    ? {
+        id: "fokus_today_alt",
+        title: "Optimasi Query dan Indexing Basis Data",
+        reason: "Mempercepat waktu respon baca dan memahami explain plan saat tabel bertumbuh.",
+        level: "Kompetensi",
+        estMinutes: 30,
+        sessionId: "m2",
+        checkpoints: [
+          { id: "cpa_1", title: "Pahami perbedaan B-Tree dan Hash Index", done: false },
+          { id: "cpa_2", title: "Coba query EXPLAIN ANALYZE sederhana", done: false },
+          { id: "cpa_3", title: "Hindari indexing berlebih pada kolom jarang dicari", done: false },
+        ],
+      }
+    : {
+        id: "fokus_today",
+        title: "Server Components & Client Components di Next.js",
+        reason: "Kunci utama arsitektur App Router agar performa optimal dan pemisahan logika yang benar.",
+        level: "Kompetensi",
+        estMinutes: 45,
+        sessionId: "m1",
+        checkpoints: [
+          { id: "cp_1", title: "Pahami kapan pakai 'use client'", done: true },
+          { id: "cp_2", title: "Passing data antar server dan klien", done: false },
+          { id: "cp_3", title: "Hindari kebocoran kunci API di klien", done: false },
+        ],
+      };
+  learningFocusStore[key] = updated;
+  return updated;
+}
+
+export function toggleFocusCheckpoint(checkpointId: string): LearningFocus {
+  const key = todayKey();
+  const focus = getTodayLearningFocus();
+  focus.checkpoints = focus.checkpoints.map((c) =>
+    c.id === checkpointId ? { ...c, done: !c.done } : c
+  );
+  learningFocusStore[key] = focus;
+  return focus;
+}
+
+export function listSkillNodes(): SkillNode[] {
+  return [...skillNodes];
+}
+
+export function toggleSkillNode(nodeId: string): SkillNode[] {
+  skillNodes = skillNodes.map((n) => (n.id === nodeId ? { ...n, done: !n.done } : n));
+  return [...skillNodes];
+}
+
