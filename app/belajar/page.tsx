@@ -11,7 +11,7 @@ export default function BelajarPage() {
         background: "transparent",
         color: "var(--rn-text)",
         minHeight: "100dvh",
-        padding: "2.5rem 1.5rem 6rem",
+        padding: "2.5rem 1.5rem 8.5rem",
         maxWidth: "36rem",
         margin: "0 auto",
         display: "flex",
@@ -20,10 +20,10 @@ export default function BelajarPage() {
       }}
     >
       <PageHead
-        counter="03 / 03"
+        counter="03 / 04"
         section="BELAJAR"
         title="Belajar"
-        sub="Daftar materi & istilah penting"
+        sub="Peta kesiapan, fokus harian, & materi"
       />
       <MaterialList />
     </div>

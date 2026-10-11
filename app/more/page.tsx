@@ -8,7 +8,7 @@ export default function MorePage() {
         background: "transparent",
         color: "var(--rn-text)",
         minHeight: "100dvh",
-        padding: "2.5rem 1.5rem 6rem",
+        padding: "2.5rem 1.5rem 8.5rem",
         maxWidth: "36rem",
         margin: "0 auto",
         display: "flex",
@@ -17,7 +17,7 @@ export default function MorePage() {
       }}
     >
       <PageHead
-        counter="03 / 03"
+        counter="04 / 04"
         section="LAINNYA"
         title="Lainnya"
         sub="Pengaturan & alat bantu"

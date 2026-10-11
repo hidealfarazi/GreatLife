@@ -33,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="id" className={`${spaceGrotesk.variable} ${geist.variable} ${geistMono.variable}`}>
       <body style={{ position: "relative", minHeight: "100vh", background: "var(--rn-bg)", color: "var(--rn-text)" }}>
-        <div style={{ position: "relative", zIndex: 1, paddingBottom: "5rem" }}>
+        <div style={{ position: "relative", zIndex: 1, paddingBottom: "0" }}>
           {children}
         </div>
         <BottomNav />

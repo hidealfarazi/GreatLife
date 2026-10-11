@@ -28,7 +28,7 @@ export default function HomePage() {
       <main
         style={{
           flex: 1,
-          padding: "3rem 1.5rem 7rem",
+          padding: "3rem 1.5rem 8.5rem",
           maxWidth: "36rem",
           width: "100%",
           margin: "0 auto",
@@ -49,7 +49,7 @@ export default function HomePage() {
               color: "var(--rn-muted)",
             }}
           >
-            01 / 03
+            01 / 04
           </span>
           <span
             style={{
@@ -108,24 +108,8 @@ export default function HomePage() {
         {/* Hairline */}
         <div style={{ height: "1px", background: "rgba(168, 159, 140, 0.2)", width: "100%", margin: 0 }} />
 
-        {/* Today section */}
-        <div>
-          <div style={{ display: "flex", alignItems: "baseline", gap: "0.75rem", marginBottom: "1rem" }}>
-            <span
-              style={{
-                fontFamily: "var(--font-mono, monospace)",
-                fontSize: "0.75rem",
-                letterSpacing: "0.15em",
-                color: "var(--rn-accent)",
-                textTransform: "uppercase",
-                fontWeight: 700,
-              }}
-            >
-              02 / 03 — HARI INI
-            </span>
-          </div>
-          <AssignmentList />
-        </div>
+        {/* Today section — judul grup + jumlah datang dari AssignmentList */}
+        <AssignmentList />
       </main>
     </div>
   );
