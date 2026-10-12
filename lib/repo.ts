@@ -6,6 +6,8 @@
 
 import { Assignment, ChecklistItem, ChecklistKind, Checkpoint, Material, Subject } from "./types";
 import { INITIAL_FOCUS, INITIAL_SKILL_NODES, LearningFocus, SkillNode } from "./mock/learning";
+import type { Recommendation } from "./ai/types";
+import { getMockRecommendation } from "./mock/recommendation";
 
 function todayKey(): string {
   const d = new Date();
@@ -326,4 +328,43 @@ export function toggleSkillNode(nodeId: string): SkillNode[] {
   skillNodes = skillNodes.map((n) => (n.id === nodeId ? { ...n, done: !n.done } : n));
   return [...skillNodes];
 }
+
+// ==========================================
+// Recommendation Store (02-home-recommendation)
+// ==========================================
+
+const recommendationStore: Record<string, Recommendation> = {};
+
+export function getTodayRecommendation(): Recommendation {
+  const key = todayKey();
+  if (!recommendationStore[key]) {
+    recommendationStore[key] = getMockRecommendation();
+  }
+  return recommendationStore[key];
+}
+
+export function switchRecommendationTopic(): Recommendation {
+  const key = todayKey();
+  const current = getTodayRecommendation();
+  if (!current.alternatives || current.alternatives.length === 0) {
+    return current;
+  }
+  const [nextAlt, ...restAlts] = current.alternatives;
+  const oldAsAlt = {
+    topic: current.topic,
+    tier: current.tier,
+    minutes: current.minutes,
+  };
+  const updated: Recommendation = {
+    ...current,
+    topic: nextAlt.topic,
+    tier: nextAlt.tier,
+    minutes: nextAlt.minutes,
+    alternatives: [...restAlts, oldAsAlt],
+    generatedAt: new Date().toISOString(),
+  };
+  recommendationStore[key] = updated;
+  return updated;
+}
+
 

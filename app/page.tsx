@@ -1,17 +1,23 @@
 /**
  * app/page.tsx — Hari Ini (Today) page
+ * Urutan baru (02-home-recommendation):
+ * 1. Sapaan kecil (label mono)
+ * 2. HERO REKOMENDASI (~75svh)
+ * 3. Blok "Berikutnya" (tugas paling mendesak + hitung mundur hidup)
+ * 4. Daftar tugas
+ * 5. Strip mingguan
  */
-import { AI_BRIEF } from "@/lib/repo";
 import { getGreeting, formatDate } from "@/lib/mock";
-import { TechText } from "@/components/TechText";
+import { RecommendationHero } from "@/components/RecommendationHero";
+import { NextTaskBlock } from "@/components/NextTaskBlock";
 import { AssignmentList } from "@/components/AssignmentList";
 import { WeeklyStrip } from "@/components/WeeklyStrip";
 import { RainBackground } from "@/components/RainBackground";
 
 export default function HomePage() {
   const greeting = getGreeting();
-  const greetingText = `${greeting},`;
   const now = new Date();
+  const greetingText = `${greeting.toUpperCase()} · ${formatDate(now).toUpperCase()}`;
 
   return (
     <div
@@ -29,18 +35,18 @@ export default function HomePage() {
       <main
         style={{
           flex: 1,
-          padding: "3rem 1.5rem 8.5rem",
+          padding: "2.5rem 1.5rem 8.5rem",
           maxWidth: "36rem",
           width: "100%",
           margin: "0 auto",
           display: "flex",
           flexDirection: "column",
-          gap: "2.25rem",
+          gap: "2.5rem",
           position: "relative",
           zIndex: 1,
         }}
       >
-        {/* Top counter */}
+        {/* Top bar: Counter 01 / 04 dan Sapaan Kecil (Label Mono) */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span
             style={{
@@ -56,61 +62,25 @@ export default function HomePage() {
             style={{
               fontFamily: "var(--font-mono, monospace)",
               fontSize: "0.6875rem",
-              letterSpacing: "0.12em",
+              letterSpacing: "0.1em",
               color: "var(--rn-muted)",
+              textTransform: "uppercase",
             }}
           >
-            HARI INI
+            {greetingText}
           </span>
         </div>
 
-        {/* Greeting with TechText (Tugas 2B) */}
-        <div>
-          <h1
-            style={{
-              fontSize: "clamp(2rem, 7vw, 3.5rem)",
-              fontWeight: 800,
-              lineHeight: 1.1,
-              letterSpacing: "-0.02em",
-              color: "var(--rn-text)",
-              wordBreak: "normal",
-              hyphens: "none",
-            }}
-          >
-            <TechText text={greetingText} />
-          </h1>
-          <p
-            style={{
-              fontFamily: "var(--font-mono, monospace)",
-              fontSize: "0.6875rem",
-              letterSpacing: "0.08em",
-              color: "var(--rn-muted)",
-              marginTop: "0.75rem",
-              textTransform: "capitalize",
-            }}
-          >
-            {formatDate(now)}
-          </p>
-        </div>
+        {/* 1. HERO REKOMENDASI (~75svh) */}
+        <RecommendationHero />
 
-        {/* AI Brief */}
-        <p
-          style={{
-            fontFamily: "var(--font-body, sans-serif)",
-            fontSize: "0.9375rem",
-            lineHeight: 1.65,
-            color: "var(--rn-muted)",
-            maxWidth: "28rem",
-          }}
-        >
-          {AI_BRIEF}
-        </p>
+        {/* 2. BLOK "BERIKUTNYA" (tugas paling mendesak + hitung mundur hidup jam:menit) */}
+        <NextTaskBlock />
 
-        {/* Hairline */}
-        <div style={{ height: "1px", background: "rgba(168, 159, 140, 0.2)", width: "100%", margin: 0 }} />
-
-        {/* Today section — judul grup + jumlah datang dari AssignmentList */}
+        {/* 3. DAFTAR TUGAS */}
         <AssignmentList />
+
+        {/* 4. STRIP MINGGUAN */}
         <WeeklyStrip />
       </main>
     </div>
