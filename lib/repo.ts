@@ -26,10 +26,11 @@ const tomorrowAt = (h: number, m: number): Date => {
 };
 
 let subjects: Subject[] = [
-  { id: "s1", name: "Pemrograman Web", color: "#C9A24B" },
-  { id: "s2", name: "Basis Data", color: "#8A5A2B" },
-  { id: "s3", name: "Matematika", color: "#6B8CAE" },
-  { id: "s4", name: "PKK", color: "#C23B2A" },
+  { id: "s1", name: "Pemrograman Web", color: "#8FA3BF" },
+  { id: "s2", name: "Basis Data", color: "#7E9D84" },
+  { id: "s3", name: "Matematika", color: "#9B86B3" },
+  { id: "s4", name: "PKK", color: "#C9A24B" },
+  { id: "s5", name: "Bahasa Indonesia", color: "#B86B6B" },
 ];
 
 let assignments: Assignment[] = [
