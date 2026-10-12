@@ -22,7 +22,7 @@ Next.js App Router + TypeScript (strict), plain CSS classes prefixed `rn-` in ap
 
 ## Hard rules
 1. TypeScript strict. No `any`, no `// @ts-ignore`. Fix type errors properly.
-2. BORDERLESS design: no cards, boxes, shadows, glow, blur, glass. See docs/DESIGN.md.
+2. BORDERLESS design for content (no cards, boxes, shadows, glow, blur, glass). Interactive controls (buttons, chips, input fields) MAY use a 12px rounded box with clear hover/focus/active states. See docs/DESIGN.md.
 3. Use existing CSS variables and `rn-` classes. No new colors. No decorative effects.
 4. Video hujan HANYA di hero halaman Hari Ini (memudar ke latar polos saat scroll).
    Halaman lain berlatar polos. Tanpa aksara Jawa, tulisan Jawa, motif batik, atau kanji.
