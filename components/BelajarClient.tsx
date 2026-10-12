@@ -24,6 +24,7 @@ import type { Material } from "@/lib/types";
 import type { LearningFocus, SkillNode } from "@/lib/mock/learning";
 import { CometDial } from "@/components/CometDial";
 import { Checklist } from "@/components/Checklist";
+import { SpringCheck } from "@/components/SpringCheck";
 
 export function BelajarClient() {
   const [focus, setFocus] = useState<LearningFocus>(() => getTodayLearningFocus());
@@ -184,36 +185,21 @@ export function BelajarClient() {
           </div>
 
           {/* Checkpoints checklist */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", marginBottom: "1.25rem" }}>
+          <div style={{ display: "flex", flexDirection: "column", marginBottom: "1.25rem" }}>
             {focus.checkpoints.map((cp) => (
-              <label
+              <div
                 key={cp.id}
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.75rem",
-                  cursor: "pointer",
-                  padding: "0.35rem 0",
-                  minHeight: 44,
-                  borderBottom: "1px solid rgba(168, 159, 140, 0.1)",
+                  borderBottom: "1px solid rgba(168, 159, 140, 0.12)",
                 }}
               >
-                <input
-                  type="checkbox"
+                <SpringCheck
+                  label={cp.title}
                   checked={cp.done}
                   onChange={() => handleToggleCheckpoint(cp.id)}
-                  style={{ width: 16, height: 16, accentColor: "var(--rn-accent)", cursor: "pointer" }}
+                  ariaLabel={`Centang ${cp.title}`}
                 />
-                <span
-                  style={{
-                    fontSize: "0.9rem",
-                    color: cp.done ? "var(--rn-muted)" : "var(--rn-text)",
-                    textDecoration: cp.done ? "line-through" : "none",
-                  }}
-                >
-                  {cp.title}
-                </span>
-              </label>
+              </div>
             ))}
           </div>
 
@@ -358,7 +344,31 @@ export function BelajarClient() {
                       </button>
 
                       <div style={{ flexShrink: 0, marginLeft: "1rem" }}>
-                        <CometDial value={progressValue} size={36} />
+                        {node.isActive ? (
+                          <CometDial value={progressValue} size={36} />
+                        ) : node.done ? (
+                          <span
+                            style={{
+                              fontFamily: "var(--font-mono, monospace)",
+                              fontSize: "0.6875rem",
+                              color: "var(--rn-accent)",
+                              fontWeight: 700,
+                              letterSpacing: "0.06em",
+                            }}
+                          >
+                            SELESAI
+                          </span>
+                        ) : (
+                          <span
+                            style={{
+                              fontFamily: "var(--font-mono, monospace)",
+                              fontSize: "0.6875rem",
+                              color: "rgba(139, 147, 160, 0.4)",
+                            }}
+                          >
+                            —
+                          </span>
+                        )}
                       </div>
                     </div>
                   );
