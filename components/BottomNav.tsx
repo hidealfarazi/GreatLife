@@ -334,7 +334,7 @@ export function BottomNav() {
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", letterSpacing: "0.15em", color: "var(--rn-muted)", textTransform: "uppercase" }}>
-                03 / 03 — LAINNYA
+                04 / 04 — LAINNYA
               </span>
               <button
                 onClick={() => setSheetOpen(false)}
