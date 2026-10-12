@@ -98,6 +98,8 @@ export function WeeklyStrip() {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
+              justifyContent: "center",
+              minHeight: "44px",
               gap: "0.35rem",
               paddingBottom: "0.45rem",
               position: "relative",
