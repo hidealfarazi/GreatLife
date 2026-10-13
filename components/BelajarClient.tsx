@@ -25,6 +25,8 @@ import type { LearningFocus, SkillNode } from "@/lib/mock/learning";
 import { CometDial } from "@/components/CometDial";
 import { Checklist } from "@/components/Checklist";
 import { SpringCheck } from "@/components/SpringCheck";
+import { Chip } from "@/components/ui/Chip";
+import { Field } from "@/components/ui/Field";
 
 export function BelajarClient() {
   const [focus, setFocus] = useState<LearningFocus>(() => getTodayLearningFocus());
@@ -32,6 +34,8 @@ export function BelajarClient() {
   const [materials, setMaterials] = useState<Material[]>(() => listMaterials());
   const [newMatTitle, setNewMatTitle] = useState("");
   const [customPrompt, setCustomPrompt] = useState("");
+  const [activeChip, setActiveChip] = useState<string | null>(null);
+  const [promptNotice, setPromptNotice] = useState<string | null>(null);
   const [expandedMatId, setExpandedMatId] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
 
@@ -65,15 +69,16 @@ export function BelajarClient() {
     refresh();
   };
 
-  const handlePromptSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!customPrompt.trim()) return;
-    alert(`(UI Demo) Minta belajar: "${customPrompt}" berhasil dicatat.`);
+  const handlePromptSubmitFromField = (value: string) => {
+    if (!value.trim()) return;
+    const modePrefix = activeChip ? `[${activeChip}] ` : "";
+    const fullMessage = `${modePrefix}${value.trim()}`;
+    setPromptNotice(`Permintaan dikirim: "${fullMessage}"`);
     setCustomPrompt("");
   };
 
-  const handleQuickPrompt = (text: string) => {
-    alert(`(UI Demo) Quick prompt dipilih: "${text}"`);
+  const handleToggleChip = (text: string) => {
+    setActiveChip((prev) => (prev === text ? null : text));
   };
 
   // Group nodes by tier
@@ -379,7 +384,7 @@ export function BelajarClient() {
         </div>
       </section>
 
-      {/* 03 MINTA SENDIRI (Input garis-bawah + tautan teks cepat) */}
+      {/* 03 MINTA SENDIRI (Field + Chip cepat flex-wrap 8px) */}
       <section>
         <div
           style={{
@@ -402,66 +407,39 @@ export function BelajarClient() {
           </span>
         </div>
 
-        <form
-          onSubmit={handlePromptSubmit}
-          style={{
-            display: "flex",
-            alignItems: "flex-end",
-            gap: "0.75rem",
-            paddingBottom: "0.5rem",
-            borderBottom: "1px solid rgba(168, 159, 140, 0.3)",
-            marginBottom: "1rem",
-          }}
-        >
-          <input
-            type="text"
+        <div style={{ marginBottom: "1rem" }}>
+          <Field
             value={customPrompt}
-            onChange={(e) => setCustomPrompt(e.target.value)}
-            placeholder="Aku mau belajar..."
-            aria-label="Aku mau belajar topik apa"
-            style={{
-              flex: 1,
-              background: "transparent",
-              border: "none",
-              borderRadius: 0,
-              color: "var(--rn-text)",
-              padding: "0.5rem 0",
-              fontFamily: "var(--font-body, sans-serif)",
-              fontSize: "0.9375rem",
-              minHeight: 44,
-              outline: "none",
+            onChange={(v) => {
+              setCustomPrompt(v);
+              if (promptNotice) setPromptNotice(null);
             }}
+            onSubmit={handlePromptSubmitFromField}
+            placeholder={activeChip ? `${activeChip}: tulis topik...` : "Aku mau belajar..."}
+            ariaLabel="Topik atau pertanyaan belajar"
           />
-          <button
-            type="submit"
+        </div>
+
+        {promptNotice && (
+          <p
+            role="status"
             style={{
-              flexShrink: 0,
-              minHeight: 44,
-              padding: "0 0.25rem",
-              background: "transparent",
-              color: "var(--rn-accent)",
-              border: "none",
               fontFamily: "var(--font-mono, monospace)",
               fontSize: "0.75rem",
-              fontWeight: 700,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              textDecoration: "underline",
-              textUnderlineOffset: "3px",
-              cursor: "pointer",
+              color: "var(--rn-accent)",
+              marginBottom: "1rem",
+              letterSpacing: "0.04em",
             }}
           >
-            Kirim
-          </button>
-        </form>
+            {promptNotice}
+          </p>
+        )}
 
         <div
           style={{
             display: "flex",
             flexWrap: "wrap",
-            gap: "1.25rem",
-            fontFamily: "var(--font-mono, monospace)",
-            fontSize: "0.6875rem",
+            gap: "8px",
           }}
         >
           {[
@@ -469,26 +447,12 @@ export function BelajarClient() {
             "Kuis aku",
             "Kasih petunjuk, jangan jawabannya",
           ].map((quickText) => (
-            <button
+            <Chip
               key={quickText}
-              type="button"
-              onClick={() => handleQuickPrompt(quickText)}
-              style={{
-                background: "transparent",
-                border: "none",
-                color: "var(--rn-muted)",
-                cursor: "pointer",
-                padding: "0.25rem 0",
-                minHeight: 44,
-                display: "inline-flex",
-                alignItems: "center",
-                textAlign: "left",
-                textDecoration: "underline",
-                textUnderlineOffset: "3px",
-              }}
-            >
-              {quickText}
-            </button>
+              label={quickText}
+              active={activeChip === quickText}
+              onClick={() => handleToggleChip(quickText)}
+            />
           ))}
         </div>
       </section>
