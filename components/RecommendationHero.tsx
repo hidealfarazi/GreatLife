@@ -11,6 +11,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { getTodayRecommendation, switchRecommendationTopic } from "@/lib/repo";
 import { TechText } from "@/components/TechText";
+import { Button } from "@/components/ui/Button";
 import type { Recommendation } from "@/lib/ai/types";
 
 export function RecommendationHero() {
@@ -125,48 +126,18 @@ export function RecommendationHero() {
           flexWrap: "wrap",
         }}
       >
-        <Link
+        <Button
+          variant="primary"
           href={`/belajar/sesi/${rec.radarItemId ?? "rekomendasi"}`}
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "0.75rem 1.5rem",
-            background: "var(--rn-text)",
-            color: "var(--rn-bg)",
-            fontFamily: "var(--font-mono, monospace)",
-            fontSize: "0.75rem",
-            fontWeight: 700,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            textDecoration: "none",
-            minHeight: 44,
-          }}
         >
           Mulai Sesi →
-        </Link>
-        <button
-          type="button"
+        </Button>
+        <Button
+          variant="secondary"
           onClick={handleSwitchTopic}
-          style={{
-            fontFamily: "var(--font-mono, monospace)",
-            fontSize: "0.75rem",
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            color: "var(--rn-muted)",
-            background: "transparent",
-            border: "none",
-            cursor: "pointer",
-            textDecoration: "underline",
-            textUnderlineOffset: "3px",
-            minHeight: 44,
-            padding: "0 0.5rem",
-            display: "inline-flex",
-            alignItems: "center",
-          }}
         >
           Ganti Topik
-        </button>
+        </Button>
       </div>
 
       {/* Sumber sinyal */}

@@ -405,19 +405,39 @@ export function BottomNav() {
                 </div>
               </div>
               <button
+                type="button"
+                role="switch"
+                aria-checked={rainEnabled}
+                aria-label="Atmosfer Hujan"
                 onClick={toggleRain}
                 style={{
-                  fontFamily: "var(--font-mono)",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  minHeight: "44px",
+                  padding: "0.25rem 0.85rem",
+                  borderRadius: "22px",
+                  background: rainEnabled ? "rgba(143, 163, 191, 0.18)" : "rgba(255, 255, 255, 0.04)",
+                  border: rainEnabled ? "1px solid var(--rn-accent)" : "1px solid rgba(255, 255, 255, 0.12)",
+                  color: rainEnabled ? "var(--rn-accent)" : "var(--rn-muted)",
+                  fontFamily: "var(--font-mono, monospace)",
                   fontSize: "0.75rem",
-                  padding: "0.4rem 0.8rem",
-                  border: "1px solid var(--rn-accent)",
-                  background: rainEnabled ? "var(--rn-accent)" : "transparent",
-                  color: rainEnabled ? "#0B0D10" : "var(--rn-text)",
                   fontWeight: 700,
+                  letterSpacing: "0.08em",
                   cursor: "pointer",
+                  transition: "background 200ms ease-out, border-color 200ms ease-out, color 200ms ease-out",
                 }}
               >
-                {rainEnabled ? "NYALA" : "MATI"}
+                <span
+                  style={{
+                    width: "8px",
+                    height: "8px",
+                    borderRadius: "50%",
+                    background: rainEnabled ? "var(--rn-accent)" : "var(--rn-muted)",
+                    display: "inline-block",
+                  }}
+                />
+                {rainEnabled ? "Nyala" : "Mati"}
               </button>
             </div>
 

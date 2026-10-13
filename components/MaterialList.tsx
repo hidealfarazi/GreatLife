@@ -15,6 +15,7 @@ import {
 } from "@/lib/repo";
 import type { Material } from "@/lib/types";
 import { Checklist } from "@/components/Checklist";
+import { Field } from "@/components/ui/Field";
 
 export function MaterialList() {
   const [materials, setMaterials] = useState<Material[]>(() => listMaterials());
@@ -39,59 +40,27 @@ export function MaterialList() {
 
   return (
     <div>
-      {/* Form tambah materi — tanpa kotak, hanya garis bawah */}
-      <form
-        onSubmit={handleCreate}
-        style={{
-          display: "flex",
-          alignItems: "flex-end",
-          gap: "0.75rem",
-          marginBottom: "2.25rem",
-          paddingBottom: "0.5rem",
-          borderBottom: "1px solid rgba(168, 159, 140, 0.3)",
-        }}
-      >
-        <input
-          type="text"
+      {/* Field tambah materi */}
+      <div style={{ marginBottom: "2.25rem" }}>
+        <Field
           value={newTitle}
-          onChange={(e) => setNewTitle(e.target.value)}
+          onChange={setNewTitle}
+          onSubmit={(val) => {
+            if (!val.trim()) return;
+            createMaterial(val.trim());
+            setNewTitle("");
+            refresh();
+          }}
           placeholder="Tambah materi baru…"
-          aria-label="Judul materi baru"
-          style={{
-            flex: 1,
-            background: "transparent",
-            border: "none",
-            borderRadius: 0,
-            color: "var(--rn-text)",
-            padding: "0.5rem 0 0.6rem",
-            fontFamily: "var(--font-body, sans-serif)",
-            fontSize: "0.9375rem",
-            minHeight: 44,
-            outline: "none",
-          }}
+          ariaLabel="Judul materi baru"
+          submitIcon={
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+          }
         />
-        <button
-          type="submit"
-          style={{
-            flexShrink: 0,
-            minHeight: 44,
-            padding: "0 0.25rem",
-            background: "transparent",
-            color: "var(--rn-accent)",
-            border: "none",
-            fontFamily: "var(--font-mono, monospace)",
-            fontSize: "0.75rem",
-            fontWeight: 700,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            textDecoration: "underline",
-            textUnderlineOffset: "3px",
-            cursor: "pointer",
-          }}
-        >
-          Tambah
-        </button>
-      </form>
+      </div>
 
       {/* Daftar materi */}
       {materials.length === 0 ? (

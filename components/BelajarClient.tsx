@@ -25,6 +25,7 @@ import type { LearningFocus, SkillNode } from "@/lib/mock/learning";
 import { CometDial } from "@/components/CometDial";
 import { Checklist } from "@/components/Checklist";
 import { SpringCheck } from "@/components/SpringCheck";
+import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { Field } from "@/components/ui/Field";
 
@@ -134,25 +135,18 @@ export function BelajarClient() {
             </span>
           </div>
 
-          <button
-            type="button"
+          <Button
+            variant="secondary"
             onClick={handleRefreshFocus}
             style={{
-              fontFamily: "var(--font-mono, monospace)",
+              minHeight: "36px",
+              height: "36px",
+              padding: "0 0.85rem",
               fontSize: "0.6875rem",
-              color: "var(--rn-muted)",
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              textDecoration: "underline",
-              textUnderlineOffset: "3px",
-              minHeight: 44,
-              display: "flex",
-              alignItems: "center",
             }}
           >
             Perbarui
-          </button>
+          </Button>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
@@ -213,26 +207,12 @@ export function BelajarClient() {
           </div>
 
           <div>
-            <Link
+            <Button
+              variant="primary"
               href={`/belajar/sesi/${focus.sessionId}`}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "0.75rem 1.5rem",
-                background: "var(--rn-text)",
-                color: "var(--rn-bg)",
-                fontFamily: "var(--font-mono, monospace)",
-                fontSize: "0.75rem",
-                fontWeight: 700,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                textDecoration: "none",
-                minHeight: 44,
-              }}
             >
               Mulai Sesi →
-            </Link>
+            </Button>
           </div>
         </div>
       </section>

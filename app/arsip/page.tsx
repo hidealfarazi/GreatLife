@@ -8,11 +8,13 @@ import { listAssignments, restoreAssignment, deleteAssignment } from "@/lib/repo
 import type { Assignment } from "@/lib/types";
 import { subjectColor } from "@/lib/subjectColors";
 import { PageHead } from "@/components/PageHead";
+import { Button } from "@/components/ui/Button";
 
 export default function ArsipPage() {
   const [archived, setArchived] = useState<Assignment[]>(() =>
     listAssignments({ includeArchived: true }).filter((a) => a.archivedAt)
   );
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const refresh = () => {
     setArchived(listAssignments({ includeArchived: true }).filter((a) => a.archivedAt));
@@ -21,13 +23,6 @@ export default function ArsipPage() {
   const handleRestore = (id: string) => {
     restoreAssignment(id);
     refresh();
-  };
-
-  const handleDeletePermanent = (id: string) => {
-    if (confirm("Hapus permanen tugas ini? Tindakan tidak dapat dibatalkan.")) {
-      deleteAssignment(id);
-      refresh();
-    }
   };
 
   return (
@@ -128,41 +123,60 @@ export default function ArsipPage() {
                 </p>
               </div>
 
-              <div style={{ display: "flex", gap: "0.5rem", flexShrink: 0 }}>
-                <button
-                  onClick={() => handleRestore(item.id)}
-                  style={{
-                    fontFamily: "var(--font-mono, monospace)",
-                    fontSize: "0.7rem",
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    padding: "0.5rem 0.75rem",
-                    minHeight: 44,
-                    border: "1px solid var(--rn-muted)",
-                    color: "var(--rn-text)",
-                    background: "transparent",
-                    cursor: "pointer",
-                  }}
-                >
-                  Pulihkan
-                </button>
-                <button
-                  onClick={() => handleDeletePermanent(item.id)}
-                  style={{
-                    fontFamily: "var(--font-mono, monospace)",
-                    fontSize: "0.7rem",
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    padding: "0.5rem 0.75rem",
-                    minHeight: 44,
-                    border: "1px solid var(--rn-alert)",
-                    color: "var(--rn-alert)",
-                    background: "transparent",
-                    cursor: "pointer",
-                  }}
-                >
-                  Hapus
-                </button>
+              <div style={{ display: "flex", gap: "0.5rem", flexShrink: 0, alignItems: "center" }}>
+                {confirmDeleteId === item.id ? (
+                  <>
+                    <Button
+                      variant="primary"
+                      onClick={() => {
+                        deleteAssignment(item.id);
+                        setConfirmDeleteId(null);
+                        refresh();
+                      }}
+                      style={{
+                        padding: "0 0.85rem",
+                        fontSize: "0.6875rem",
+                      }}
+                    >
+                      Konfirmasi Hapus
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={() => setConfirmDeleteId(null)}
+                      style={{
+                        padding: "0 0.75rem",
+                        fontSize: "0.6875rem",
+                      }}
+                    >
+                      Batal
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      variant="secondary"
+                      onClick={() => handleRestore(item.id)}
+                      style={{
+                        padding: "0 0.85rem",
+                        fontSize: "0.75rem",
+                      }}
+                    >
+                      Pulihkan
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={() => setConfirmDeleteId(item.id)}
+                      style={{
+                        padding: "0 0.85rem",
+                        fontSize: "0.75rem",
+                        borderColor: "rgba(217, 119, 107, 0.35)",
+                        color: "var(--rn-alert)",
+                      }}
+                    >
+                      Hapus Permanen
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           ))}

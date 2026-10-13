@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { addChecklistItem, listChecklist, toggleChecklistItem, deleteChecklistItem } from "@/lib/repo";
 import { Checklist } from "@/components/Checklist";
+import { Button } from "@/components/ui/Button";
 
 interface QuizQuestion {
   id: number;
@@ -73,6 +74,7 @@ export function SesiBelajarClient({ id }: { id: string }) {
 
   // Step 4 reflection state
   const [reflection, setReflection] = useState("");
+  const [reflectionError, setReflectionError] = useState("");
   const [saved, setSaved] = useState(false);
 
   const refreshTerms = () => {
@@ -102,9 +104,10 @@ export function SesiBelajarClient({ id }: { id: string }) {
   const handleFinish = (e: React.FormEvent) => {
     e.preventDefault();
     if (!reflection.trim()) {
-      alert("Mohon tuliskan refleksi satu kalimat terlebih dahulu.");
+      setReflectionError("Mohon tuliskan refleksi satu kalimat terlebih dahulu.");
       return;
     }
+    setReflectionError("");
     // Simpan sebagai checkpoint materi di repo
     addChecklistItem("material", id, "term", `Refleksi: ${reflection.trim()}`);
     setSaved(true);
@@ -204,25 +207,12 @@ export function SesiBelajarClient({ id }: { id: string }) {
               </div>
 
               <div>
-                <button
-                  type="button"
+                <Button
+                  variant="primary"
                   onClick={() => setStep(2)}
-                  style={{
-                    padding: "0.75rem 1.75rem",
-                    background: "var(--rn-text)",
-                    color: "var(--rn-bg)",
-                    fontFamily: "var(--font-mono, monospace)",
-                    fontSize: "0.75rem",
-                    fontWeight: 700,
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    cursor: "pointer",
-                    minHeight: 44,
-                    border: "none",
-                  }}
                 >
                   Lanjut ke Istilah →
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -257,44 +247,18 @@ export function SesiBelajarClient({ id }: { id: string }) {
               />
 
               <div style={{ display: "flex", gap: "1rem" }}>
-                <button
-                  type="button"
+                <Button
+                  variant="secondary"
                   onClick={() => setStep(1)}
-                  style={{
-                    padding: "0.75rem 1.25rem",
-                    background: "transparent",
-                    color: "var(--rn-text)",
-                    fontFamily: "var(--font-mono, monospace)",
-                    fontSize: "0.75rem",
-                    fontWeight: 700,
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    cursor: "pointer",
-                    minHeight: 44,
-                    border: "1px solid var(--rn-muted)",
-                  }}
                 >
                   ← Kembali
-                </button>
-                <button
-                  type="button"
+                </Button>
+                <Button
+                  variant="primary"
                   onClick={() => setStep(3)}
-                  style={{
-                    padding: "0.75rem 1.75rem",
-                    background: "var(--rn-text)",
-                    color: "var(--rn-bg)",
-                    fontFamily: "var(--font-mono, monospace)",
-                    fontSize: "0.75rem",
-                    fontWeight: 700,
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    cursor: "pointer",
-                    minHeight: 44,
-                    border: "none",
-                  }}
                 >
                   Lanjut Kuis →
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -395,44 +359,18 @@ export function SesiBelajarClient({ id }: { id: string }) {
               </div>
 
               <div style={{ display: "flex", gap: "1rem" }}>
-                <button
-                  type="button"
+                <Button
+                  variant="secondary"
                   onClick={() => setStep(2)}
-                  style={{
-                    padding: "0.75rem 1.25rem",
-                    background: "transparent",
-                    color: "var(--rn-text)",
-                    fontFamily: "var(--font-mono, monospace)",
-                    fontSize: "0.75rem",
-                    fontWeight: 700,
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    cursor: "pointer",
-                    minHeight: 44,
-                    border: "1px solid var(--rn-muted)",
-                  }}
                 >
                   ← Kembali
-                </button>
-                <button
-                  type="button"
+                </Button>
+                <Button
+                  variant="primary"
                   onClick={() => setStep(4)}
-                  style={{
-                    padding: "0.75rem 1.75rem",
-                    background: "var(--rn-text)",
-                    color: "var(--rn-bg)",
-                    fontFamily: "var(--font-mono, monospace)",
-                    fontSize: "0.75rem",
-                    fontWeight: 700,
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    cursor: "pointer",
-                    minHeight: 44,
-                    border: "none",
-                  }}
                 >
                   Lanjut Refleksi →
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -465,69 +403,60 @@ export function SesiBelajarClient({ id }: { id: string }) {
                   display: "flex",
                   flexDirection: "column",
                   gap: "0.5rem",
-                  paddingBottom: "0.5rem",
-                  borderBottom: "1px solid rgba(168, 159, 140, 0.3)",
                 }}
               >
                 <input
                   type="text"
                   value={reflection}
-                  onChange={(e) => setReflection(e.target.value)}
+                  onChange={(e) => {
+                    setReflection(e.target.value);
+                    if (reflectionError) setReflectionError("");
+                  }}
                   placeholder="Contoh: Saya paham kapan harus pakai Server vs Client Component..."
-                  required
                   style={{
                     width: "100%",
-                    background: "transparent",
-                    border: "none",
-                    borderRadius: 0,
+                    height: "52px",
+                    borderRadius: "12px",
+                    background: "rgba(255, 255, 255, 0.04)",
+                    border: reflectionError
+                      ? "1px solid var(--rn-alert)"
+                      : "1px solid rgba(255, 255, 255, 0.12)",
                     color: "var(--rn-text)",
-                    padding: "0.75rem 0",
+                    padding: "0 1rem",
                     fontFamily: "var(--font-body, sans-serif)",
                     fontSize: "1rem",
                     minHeight: 44,
                     outline: "none",
                   }}
                 />
+                {reflectionError && (
+                  <p
+                    role="alert"
+                    style={{
+                      fontFamily: "var(--font-mono, monospace)",
+                      fontSize: "0.75rem",
+                      color: "var(--rn-alert)",
+                      letterSpacing: "0.04em",
+                    }}
+                  >
+                    {reflectionError}
+                  </p>
+                )}
               </div>
 
               <div style={{ display: "flex", gap: "1rem" }}>
-                <button
-                  type="button"
+                <Button
+                  variant="secondary"
                   onClick={() => setStep(3)}
-                  style={{
-                    padding: "0.75rem 1.25rem",
-                    background: "transparent",
-                    color: "var(--rn-text)",
-                    fontFamily: "var(--font-mono, monospace)",
-                    fontSize: "0.75rem",
-                    fontWeight: 700,
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    cursor: "pointer",
-                    minHeight: 44,
-                    border: "1px solid var(--rn-muted)",
-                  }}
                 >
                   ← Kembali
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
-                  style={{
-                    padding: "0.75rem 2rem",
-                    background: "var(--rn-text)",
-                    color: "var(--rn-bg)",
-                    fontFamily: "var(--font-mono, monospace)",
-                    fontSize: "0.75rem",
-                    fontWeight: 700,
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    cursor: "pointer",
-                    minHeight: 44,
-                    border: "none",
-                  }}
+                  variant="primary"
                 >
                   Selesai & Simpan ✓
-                </button>
+                </Button>
               </div>
             </form>
           )}

@@ -20,6 +20,7 @@ import { subjectColor } from "@/lib/subjectColors";
 import type { Assignment } from "@/lib/types";
 import { CometDial } from "@/components/CometDial";
 import { SwipeRow } from "@/components/SwipeRow";
+import { Button } from "@/components/ui/Button";
 
 function progressOf(item: Assignment): number {
   const steps = listChecklist("assignment", item.id).filter((c) => c.kind === "step");
@@ -338,25 +339,21 @@ export function AssignmentList() {
           }}
         >
           <span style={{ fontSize: "0.875rem", fontWeight: 600 }}>Tugas dihapus.</span>
-          <button
+          <Button
+            variant="secondary"
             onClick={handleUndo}
             style={{
-              fontFamily: "var(--font-mono, monospace)",
-              fontSize: "0.75rem",
-              fontWeight: 800,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              textDecoration: "underline",
-              minHeight: 44,
-              padding: "0 0.5rem",
+              background: "rgba(11, 13, 16, 0.12)",
+              borderColor: "rgba(11, 13, 16, 0.25)",
               color: "#0B0D10",
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
+              minHeight: "36px",
+              height: "36px",
+              padding: "0 0.85rem",
+              fontSize: "0.75rem",
             }}
           >
             Urungkan
-          </button>
+          </Button>
         </div>
       )}
     </div>

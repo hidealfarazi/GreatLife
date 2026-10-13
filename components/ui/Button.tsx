@@ -9,12 +9,14 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 
 type ButtonVariant = "primary" | "secondary";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   children: React.ReactNode;
+  href?: string;
 }
 
 const BASE: React.CSSProperties = {
@@ -58,6 +60,7 @@ export function Button({
   children,
   style,
   disabled,
+  href,
   onMouseEnter,
   onMouseLeave,
   onMouseDown,
@@ -86,6 +89,25 @@ export function Button({
     ...(pressed && !disabled ? { transform: "scale(0.98)" } : {}),
     ...style,
   };
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        style={dynamicStyle}
+        className={rest.className}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => {
+          setHovered(false);
+          setPressed(false);
+        }}
+        onMouseDown={() => setPressed(true)}
+        onMouseUp={() => setPressed(false)}
+      >
+        {children}
+      </Link>
+    );
+  }
 
   return (
     <button

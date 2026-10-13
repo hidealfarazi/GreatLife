@@ -3,6 +3,7 @@
  */
 import { PageHead } from "@/components/PageHead";
 import { AssignmentList } from "@/components/AssignmentList";
+import { Button } from "@/components/ui/Button";
 
 export default function PrPage() {
   return (
@@ -16,7 +17,7 @@ export default function PrPage() {
         margin: "0 auto",
         display: "flex",
         flexDirection: "column",
-        gap: "2rem",
+        gap: "1.75rem",
       }}
     >
       <PageHead
@@ -25,6 +26,11 @@ export default function PrPage() {
         title="Daftar PR"
         sub="Tugas aktif dan progres"
       />
+      <div>
+        <Button href="/pr/new" variant="secondary">
+          + Tugas Baru
+        </Button>
+      </div>
       <AssignmentList />
     </div>
   );

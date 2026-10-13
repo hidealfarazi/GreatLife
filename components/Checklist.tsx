@@ -8,6 +8,7 @@
 import { useState } from "react";
 import { ChecklistItem, ChecklistKind } from "@/lib/types";
 import { SpringCheck } from "@/components/SpringCheck";
+import { Field } from "@/components/ui/Field";
 
 interface ChecklistProps {
   items: ChecklistItem[];
@@ -120,59 +121,26 @@ export function Checklist({
         )}
       </div>
 
-      {/* Add new item form — borderless: underline only, text button */}
-      <form
-        onSubmit={handleAdd}
-        style={{
-          display: "flex",
-          alignItems: "flex-end",
-          gap: "0.75rem",
-          marginTop: "1.25rem",
-          paddingBottom: "0.4rem",
-          borderBottom: "1px solid rgba(168, 159, 140, 0.3)",
-        }}
-      >
-        <input
-          type="text"
+      {/* Add new item field */}
+      <div style={{ marginTop: "1.25rem" }}>
+        <Field
           value={newTitle}
-          onChange={(e) => setNewTitle(e.target.value)}
+          onChange={setNewTitle}
+          onSubmit={(val) => {
+            if (!val.trim()) return;
+            onAdd(val.trim());
+            setNewTitle("");
+          }}
           placeholder={`Tambah ${title.toLowerCase()} baru…`}
-          aria-label={`Tambah ${title.toLowerCase()} baru`}
-          style={{
-            flex: 1,
-            background: "transparent",
-            border: "none",
-            borderRadius: 0,
-            color: "var(--rn-text)",
-            padding: "0.5rem 0",
-            fontFamily: "var(--font-body, sans-serif)",
-            fontSize: "0.875rem",
-            minHeight: 44,
-            outline: "none",
-          }}
+          ariaLabel={`Tambah ${title.toLowerCase()} baru`}
+          submitIcon={
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+          }
         />
-        <button
-          type="submit"
-          style={{
-            flexShrink: 0,
-            minHeight: 44,
-            padding: "0 0.25rem",
-            background: "transparent",
-            color: "var(--rn-accent)",
-            border: "none",
-            fontFamily: "var(--font-mono, monospace)",
-            fontSize: "0.75rem",
-            fontWeight: 700,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            textDecoration: "underline",
-            textUnderlineOffset: "3px",
-            cursor: "pointer",
-          }}
-        >
-          Tambah
-        </button>
-      </form>
+      </div>
     </div>
   );
 }
