@@ -89,6 +89,7 @@ export function Button({
 
   return (
     <button
+      type={rest.type ?? "button"}
       {...rest}
       disabled={disabled}
       style={dynamicStyle}

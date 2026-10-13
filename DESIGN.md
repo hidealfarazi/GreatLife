@@ -16,7 +16,7 @@ Bold, calm, personal, borderless. Deep near-black, giant grotesk type, single st
 - Labels & Times: `Geist Mono` (one consistent uppercase mono pattern)
 
 ## Borderless Rules
-- Konten tetap BORDERLESS (tanpa kartu/kotak, tanpa bayangan, tanpa glow, tanpa blur/kaca). Kontrol interaktif (tombol, chip, kolom input) BOLEH berupa kotak bersudut membulat 12px dengan keadaan hover/fokus/aktif yang jelas.
+- Konten tetap BORDERLESS (tanpa kartu/kotak). Kontrol interaktif (tombol, chip, kolom input) BOLEH berupa kotak bersudut membulat 12px dengan keadaan hover/fokus/aktif yang jelas.
 - Separation achieved with whitespace, large confident type, and single 1px hairline rules (`rgba(143, 163, 191, 0.15)` or `rgba(139, 147, 160, 0.2)`).
 - Full-width text rows. 
 - Progress shown via Comet Dial (read-only, mono numbers).
