@@ -33,6 +33,7 @@ export function BelajarClient() {
   const [nodes, setNodes] = useState<SkillNode[]>(() => listSkillNodes());
   const [materials, setMaterials] = useState<Material[]>(() => listMaterials());
   const [newMatTitle, setNewMatTitle] = useState("");
+  const [matError, setMatError] = useState("");
   const [customPrompt, setCustomPrompt] = useState("");
   const [activeChip, setActiveChip] = useState<string | null>(null);
   const [promptNotice, setPromptNotice] = useState<string | null>(null);
@@ -61,10 +62,13 @@ export function BelajarClient() {
     setNodes([...updated]);
   };
 
-  const handleCreateMaterial = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newMatTitle.trim()) return;
-    createMaterial(newMatTitle.trim());
+  const handleCreateMaterialFromField = (value: string) => {
+    if (!value.trim()) {
+      setMatError("Judul materi tidak boleh kosong");
+      return;
+    }
+    setMatError("");
+    createMaterial(value.trim());
     setNewMatTitle("");
     refresh();
   };
@@ -492,59 +496,26 @@ export function BelajarClient() {
           </span>
         </div>
 
-        {/* Form tambah materi */}
-        <form
-          onSubmit={handleCreateMaterial}
-          style={{
-            display: "flex",
-            alignItems: "flex-end",
-            gap: "0.75rem",
-            marginBottom: "1.5rem",
-            paddingBottom: "0.4rem",
-            borderBottom: "1px solid rgba(168, 159, 140, 0.3)",
-          }}
-        >
-          <input
-            type="text"
+        {/* Field tambah materi */}
+        <div style={{ marginBottom: "1.5rem" }}>
+          <Field
             value={newMatTitle}
-            onChange={(e) => setNewMatTitle(e.target.value)}
+            onChange={(v) => {
+              setNewMatTitle(v);
+              if (matError) setMatError("");
+            }}
+            onSubmit={handleCreateMaterialFromField}
             placeholder="Tambah materi baru..."
-            aria-label="Judul materi baru"
-            style={{
-              flex: 1,
-              background: "transparent",
-              border: "none",
-              borderRadius: 0,
-              color: "var(--rn-text)",
-              padding: "0.5rem 0",
-              fontFamily: "var(--font-body, sans-serif)",
-              fontSize: "0.9rem",
-              minHeight: 44,
-              outline: "none",
-            }}
+            ariaLabel="Judul materi baru"
+            error={matError}
+            submitIcon={
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            }
           />
-          <button
-            type="submit"
-            style={{
-              flexShrink: 0,
-              minHeight: 44,
-              padding: "0 0.25rem",
-              background: "transparent",
-              color: "var(--rn-accent)",
-              border: "none",
-              fontFamily: "var(--font-mono, monospace)",
-              fontSize: "0.75rem",
-              fontWeight: 700,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              textDecoration: "underline",
-              textUnderlineOffset: "3px",
-              cursor: "pointer",
-            }}
-          >
-            Tambah
-          </button>
-        </form>
+        </div>
 
         {materials.length === 0 ? (
           <p style={{ color: "var(--rn-muted)", fontStyle: "italic", fontSize: "0.9rem" }}>
