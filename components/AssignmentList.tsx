@@ -112,7 +112,7 @@ export function AssignmentList() {
 
     const res: GroupedAssignments[] = [];
     if (overdue.length > 0) {
-      res.push({ label: "Terlambat", badge: "LEWAT TENGGAT", isOverdue: true, items: overdue });
+      res.push({ label: "Terlambat", isOverdue: true, items: overdue });
     }
     if (today.length > 0) {
       res.push({ label: "Hari ini", items: today });
@@ -268,12 +268,12 @@ export function AssignmentList() {
                                     fontFamily: "var(--font-mono, monospace)",
                                     fontSize: "0.6875rem",
                                     letterSpacing: "0.1em",
-                                    color: statusColor,
+                                    color: isOverdue ? "var(--rn-muted)" : statusColor,
                                     textTransform: "uppercase",
-                                    fontWeight: isOverdue ? 800 : 500,
+                                    fontWeight: 500,
                                   }}
                                 >
-                                  {item.subject} {isOverdue ? "· TERLAMBAT" : ""}
+                                  {item.subject}
                                 </span>
                               </div>
                               <span
