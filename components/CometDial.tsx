@@ -1,21 +1,20 @@
 /**
  * components/CometDial.tsx
- * Adapted from React Bits CometDial for read-only progress display.
- * Complies with DESIGN.md (borderless, uses rn- tokens, mono font).
+ * Read-only progress ring (restyled after React Bits Comet Dial): tokens only, mono number,
+ * no shadows. Exposed to screen readers as one image: "<label> <n>%".
+ * The arc draws in on mount (stroke-dashoffset transition), static under reduced motion.
  */
-
 "use client";
-
-import React, { useEffect, useRef } from "react";
 
 interface CometDialProps {
   value: number; // 0 to 100
-  size?: number; // e.g. 44 for row, 160 for detail page
+  size?: number; // e.g. 44 for row, 120 for detail page
   className?: string;
+  label?: string;
 }
 
-export function CometDial({ value, size = 44, className = "" }: CometDialProps) {
-  const clamped = Math.min(100, Math.max(0, value));
+export function CometDial({ value, size = 44, className = "", label = "Progres" }: CometDialProps) {
+  const clamped = Math.round(Math.min(100, Math.max(0, value)));
   const strokeWidth = size > 60 ? 4 : 3;
   const radius = (size - strokeWidth * 2) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -24,31 +23,24 @@ export function CometDial({ value, size = 44, className = "" }: CometDialProps) 
   return (
     <div
       className={className}
+      role="img"
+      aria-label={`${label} ${clamped}%`}
       style={{
         position: "relative",
         width: `${size}px`,
         height: `${size}px`,
+        flexShrink: 0,
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
         userSelect: "none",
-        pointerEvents: "none", // Read-only: disable interaction
+        pointerEvents: "none",
       }}
-      aria-label={`Progress ${clamped}%`}
     >
-      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
-        {/* Background track */}
+      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }} aria-hidden="true">
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="var(--rn-muted)" strokeWidth={strokeWidth} opacity={0.3} />
         <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="var(--rn-muted)"
-          strokeWidth={strokeWidth}
-          opacity={0.3}
-        />
-        {/* Progress fill */}
-        <circle
+          className="rn-dial-arc"
           cx={size / 2}
           cy={size / 2}
           r={radius}
@@ -58,10 +50,11 @@ export function CometDial({ value, size = 44, className = "" }: CometDialProps) 
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
-          style={{ transition: "stroke-dashoffset 0.5s ease-out" }}
+          style={{ ["--rn-dial-from" as string]: String(circumference) } as React.CSSProperties}
         />
       </svg>
       <div
+        aria-hidden="true"
         style={{
           position: "absolute",
           inset: 0,

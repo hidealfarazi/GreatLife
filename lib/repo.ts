@@ -5,8 +5,9 @@
  */
 
 import { Assignment, ChecklistItem, ChecklistKind, Checkpoint, Material, Subject } from "./types";
-import { INITIAL_FOCUS, INITIAL_SKILL_NODES, LearningFocus, SkillNode } from "./mock/learning";
-import type { Recommendation } from "./ai/types";
+import { INITIAL_SKILL_NODES, SkillNode } from "./mock/learning";
+import { OFFLINE_RADAR } from "./mock/radar";
+import type { Radar, Recommendation, Source } from "./ai/types";
 import { getMockRecommendation } from "./mock/recommendation";
 
 function todayKey(): string {
@@ -258,75 +259,93 @@ export function createMaterial(title: string, subjectId?: string): Material {
 }
 
 // ==========================================
-// Learning Focus & Skill Path (Tugas 4 & 5)
+// Skill path ("Jalurmu") — done flags persisted in localStorage
 // ==========================================
 
-const learningFocusStore: Record<string, LearningFocus> = {
-  [todayKey()]: { ...INITIAL_FOCUS },
-};
+const SKILL_KEY = "rn_skill_done_v1";
+let skillSnapshot: SkillNode[] | null = null;
+const skillListeners = new Set<() => void>();
 
-let skillNodes: SkillNode[] = [...INITIAL_SKILL_NODES];
-
-export function getTodayLearningFocus(): LearningFocus {
-  const key = todayKey();
-  if (!learningFocusStore[key]) {
-    learningFocusStore[key] = { ...INITIAL_FOCUS };
+function readSkillNodes(): SkillNode[] {
+  try {
+    const raw = localStorage.getItem(SKILL_KEY);
+    if (!raw) return INITIAL_SKILL_NODES;
+    const done = new Set(JSON.parse(raw) as string[]);
+    return INITIAL_SKILL_NODES.map((n) => ({ ...n, done: done.has(n.id) }));
+  } catch {
+    return INITIAL_SKILL_NODES;
   }
-  return learningFocusStore[key];
 }
 
-export function refreshLearningFocus(): LearningFocus {
-  const key = todayKey();
-  // Alternating mock focus when refreshed
-  const isAlt = learningFocusStore[key]?.title.includes("Server Components");
-  const updated: LearningFocus = isAlt
-    ? {
-        id: "fokus_today_alt",
-        title: "Optimasi Query dan Indexing Basis Data",
-        reason: "Mempercepat waktu respon baca dan memahami explain plan saat tabel bertumbuh.",
-        level: "Kompetensi",
-        estMinutes: 30,
-        sessionId: "m2",
-        checkpoints: [
-          { id: "cpa_1", title: "Pahami perbedaan B-Tree dan Hash Index", done: false },
-          { id: "cpa_2", title: "Coba query EXPLAIN ANALYZE sederhana", done: false },
-          { id: "cpa_3", title: "Hindari indexing berlebih pada kolom jarang dicari", done: false },
-        ],
-      }
-    : {
-        id: "fokus_today",
-        title: "Server Components & Client Components di Next.js",
-        reason: "Kunci utama arsitektur App Router agar performa optimal dan pemisahan logika yang benar.",
-        level: "Kompetensi",
-        estMinutes: 45,
-        sessionId: "m1",
-        checkpoints: [
-          { id: "cp_1", title: "Pahami kapan pakai 'use client'", done: true },
-          { id: "cp_2", title: "Passing data antar server dan klien", done: false },
-          { id: "cp_3", title: "Hindari kebocoran kunci API di klien", done: false },
-        ],
-      };
-  learningFocusStore[key] = updated;
-  return updated;
+export function subscribeSkillNodes(callback: () => void): () => void {
+  skillListeners.add(callback);
+  return () => skillListeners.delete(callback);
 }
 
-export function toggleFocusCheckpoint(checkpointId: string): LearningFocus {
-  const key = todayKey();
-  const focus = getTodayLearningFocus();
-  focus.checkpoints = focus.checkpoints.map((c) =>
-    c.id === checkpointId ? { ...c, done: !c.done } : c
-  );
-  learningFocusStore[key] = focus;
-  return focus;
-}
-
+/** Stable snapshot for useSyncExternalStore (client). */
 export function listSkillNodes(): SkillNode[] {
-  return [...skillNodes];
+  if (typeof window === "undefined") return INITIAL_SKILL_NODES;
+  if (!skillSnapshot) skillSnapshot = readSkillNodes();
+  return skillSnapshot;
+}
+
+/** Server / first-render snapshot. */
+export function listSkillNodesInitial(): SkillNode[] {
+  return INITIAL_SKILL_NODES;
 }
 
 export function toggleSkillNode(nodeId: string): SkillNode[] {
-  skillNodes = skillNodes.map((n) => (n.id === nodeId ? { ...n, done: !n.done } : n));
-  return [...skillNodes];
+  skillSnapshot = listSkillNodes().map((n) => (n.id === nodeId ? { ...n, done: !n.done } : n));
+  try {
+    localStorage.setItem(SKILL_KEY, JSON.stringify(skillSnapshot.filter((n) => n.done).map((n) => n.id)));
+  } catch {
+    /* ignore */
+  }
+  skillListeners.forEach((l) => l());
+  return skillSnapshot;
+}
+
+// ==========================================
+// Today's focus checkpoints (Belajar 01) — 3 per recommended topic, per day
+// ==========================================
+
+export interface FocusCheckpoint {
+  id: string;
+  title: string;
+  done: boolean;
+}
+
+const FOCUS_KEY = "rn_focus_checks_v1";
+
+function defaultFocusCheckpoints(topic: string): FocusCheckpoint[] {
+  return [
+    { id: "f1", title: `Pahami inti "${topic}" dalam satu kalimat`, done: false },
+    { id: "f2", title: "Coba satu contoh kecil sendiri", done: false },
+    { id: "f3", title: "Catat satu hal yang masih membingungkan", done: false },
+  ];
+}
+
+export function getFocusCheckpoints(topic: string): FocusCheckpoint[] {
+  try {
+    const raw = localStorage.getItem(FOCUS_KEY);
+    if (raw) {
+      const saved = JSON.parse(raw) as { day: string; topic: string; items: FocusCheckpoint[] };
+      if (saved.day === todayKey() && saved.topic === topic && Array.isArray(saved.items)) return saved.items;
+    }
+  } catch {
+    /* ignore */
+  }
+  return defaultFocusCheckpoints(topic);
+}
+
+export function toggleFocusCheckpoint(topic: string, id: string): FocusCheckpoint[] {
+  const items = getFocusCheckpoints(topic).map((c) => (c.id === id ? { ...c, done: !c.done } : c));
+  try {
+    localStorage.setItem(FOCUS_KEY, JSON.stringify({ day: todayKey(), topic, items }));
+  } catch {
+    /* ignore */
+  }
+  return items;
 }
 
 // ==========================================
@@ -425,7 +444,7 @@ export function buildRecommendationRequest(): {
       title: a.title,
       dueInHours: Math.round(((new Date(a.dueAt).getTime() - nowMs) / 3600000) * 10) / 10,
     }));
-  const doneTopics = skillNodes.filter((n) => n.done).map((n) => n.title);
+  const doneTopics = listSkillNodes().filter((n) => n.done).map((n) => n.title);
   return { tasks, doneTopics };
 }
 
@@ -466,4 +485,90 @@ export function loadTodayRecommendation(): Promise<StoredRecommendation> {
     recInFlight = null;
   });
   return recInFlight;
+}
+
+/** Session link for a recommendation (Home hero + Belajar "Fokus hari ini"). */
+export function sessionHrefFor(rec: Recommendation): string {
+  return `/belajar/sesi/${encodeURIComponent(rec.radarItemId || "rekomendasi")}`;
+}
+
+// ==========================================
+// Tech-stack roadmap (GET/POST /api/ai/radar) with offline seed
+// ==========================================
+
+export interface RadarLoad {
+  radar: Radar;
+  stale: boolean;
+  /** true = API unavailable, showing the local seed ("Roadmap awal (offline)"). */
+  offline: boolean;
+}
+
+function isRadar(v: unknown): v is Radar {
+  return typeof v === "object" && v !== null && Array.isArray((v as Radar).items) && Array.isArray((v as Radar).pending);
+}
+
+export async function loadRadar(): Promise<RadarLoad> {
+  try {
+    const res = await fetch("/api/ai/radar", { cache: "no-store" });
+    if (res.ok) {
+      const data = (await res.json()) as { radar?: unknown; stale?: boolean };
+      if (isRadar(data.radar)) {
+        return { radar: { ...data.radar, sources: data.radar.sources ?? [] }, stale: data.stale === true, offline: false };
+      }
+    }
+  } catch {
+    /* fall through to the seed */
+  }
+  return { radar: OFFLINE_RADAR, stale: false, offline: true };
+}
+
+/** apply / dismiss a pending change (by index) or refresh. Returns null on failure. */
+export async function updateRadar(action: "apply" | "dismiss" | "refresh", index?: number): Promise<RadarLoad | null> {
+  try {
+    const res = await fetch("/api/ai/radar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(index === undefined ? { action } : { action, index }),
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { radar?: unknown; stale?: boolean };
+    return isRadar(data.radar) ? { radar: data.radar, stale: data.stale === true, offline: false } : null;
+  } catch {
+    return null;
+  }
+}
+
+// ==========================================
+// "Tanya dikit" (POST /api/ai/ask)
+// ==========================================
+
+export type AskMode = "normal" | "analogy" | "hint" | "quiz";
+export interface AskTurn {
+  role: "user" | "model";
+  text: string;
+}
+export type AskResult =
+  | { ok: true; answer: string; sources: Source[] }
+  | { ok: false; reason: "budget" | "rate_limit" | "unavailable" };
+
+export async function askTutor(question: string, history: AskTurn[], mode: AskMode, search: boolean): Promise<AskResult> {
+  try {
+    const res = await fetch("/api/ai/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question, history: history.slice(-6), mode, search }),
+    });
+    const data = (await res.json().catch(() => ({}))) as { answer?: unknown; sources?: unknown; code?: unknown };
+    if (res.ok && typeof data.answer === "string" && data.answer.trim()) {
+      const sources = Array.isArray(data.sources)
+        ? (data.sources as Source[]).filter((x) => typeof x?.url === "string" && /^https?:\/\//.test(x.url))
+        : [];
+      return { ok: true, answer: data.answer, sources };
+    }
+    if (data.code === "budget") return { ok: false, reason: "budget" };
+    if (data.code === "rate_limit") return { ok: false, reason: "rate_limit" };
+    return { ok: false, reason: "unavailable" };
+  } catch {
+    return { ok: false, reason: "unavailable" };
+  }
 }
