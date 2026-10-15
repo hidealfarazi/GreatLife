@@ -3,7 +3,7 @@ import { Space_Grotesk, Geist_Mono, Geist } from "next/font/google";
 import "./globals.css";
 import { BottomNav } from "@/components/BottomNav";
 import { AppRuntime } from "@/components/AppRuntime";
-import { INSTALL_CAPTURE_SCRIPT } from "@/lib/pwa";
+import { INSTALL_CAPTURE_SCRIPT } from "@/lib/installScript";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],

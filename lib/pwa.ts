@@ -5,6 +5,7 @@
  * script in app/layout.tsx (it can fire before React has loaded) and kept on `window`.
  */
 import { useSyncExternalStore } from "react";
+import { INSTALL_EVENT } from "./installScript";
 
 export interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -21,12 +22,6 @@ declare global {
     standalone?: boolean;
   }
 }
-
-/** Event fired (by the inline script and by this module) when the install state changes. */
-export const INSTALL_EVENT = "belajar:installstate";
-
-/** Inline script for <head>: keeps the install prompt for later and hides Chrome's mini-bar. */
-export const INSTALL_CAPTURE_SCRIPT = `(function(){var E=${JSON.stringify(INSTALL_EVENT)};window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__belajarInstallPrompt=e;window.dispatchEvent(new Event(E));});window.addEventListener("appinstalled",function(){window.__belajarInstallPrompt=null;window.__belajarInstalled=true;window.dispatchEvent(new Event(E));});})();`;
 
 export function isStandalone(): boolean {
   if (typeof window === "undefined") return false;
