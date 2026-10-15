@@ -610,3 +610,10 @@ img, svg {
 @media (hover: hover) and (pointer: fine) {
   .rn-swipe:hover .rn-swipe-aksi { opacity: 1; pointer-events: auto; }
 }
+
+/* Text reveal on load (hero content) */
+.rn-reveal { animation: rn-reveal 600ms ease-out both; }
+@keyframes rn-reveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}

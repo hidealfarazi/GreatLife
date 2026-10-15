@@ -209,7 +209,7 @@ export function BelajarClient() {
               variant="primary"
               href={`/belajar/sesi/${focus.sessionId}`}
             >
-              Mulai Sesi →
+              Mulai sesi
             </Button>
           </div>
         </div>

@@ -330,41 +330,101 @@ export function toggleSkillNode(nodeId: string): SkillNode[] {
 }
 
 // ==========================================
-// Recommendation Store (02-home-recommendation)
+// Recommendation (Home hero) — cached once per day
 // ==========================================
 
-const recommendationStore: Record<string, Recommendation> = {};
+export type RecommendationSource = "ai" | "mock";
 
-export function getTodayRecommendation(): Recommendation {
-  const key = todayKey();
-  if (!recommendationStore[key]) {
-    recommendationStore[key] = getMockRecommendation();
-  }
-  return recommendationStore[key];
+export interface StoredRecommendation {
+  day: string;
+  source: RecommendationSource;
+  rec: Recommendation;
+  /** Topic the AI originally suggested (before "Ganti topik"). */
+  originalTopic: string;
 }
 
-export function switchRecommendationTopic(): Recommendation {
-  const key = todayKey();
-  const current = getTodayRecommendation();
-  if (!current.alternatives || current.alternatives.length === 0) {
-    return current;
+const REC_STORAGE_KEY = "rn_recommendation_v1";
+let recMemory: StoredRecommendation | null = null;
+
+function readStoredRecommendation(): StoredRecommendation | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(REC_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as StoredRecommendation;
+    return parsed && typeof parsed.rec?.topic === "string" ? parsed : null;
+  } catch {
+    return null;
   }
-  const [nextAlt, ...restAlts] = current.alternatives;
-  const oldAsAlt = {
-    topic: current.topic,
-    tier: current.tier,
-    minutes: current.minutes,
-  };
+}
+
+/** Today's cached recommendation (memory, then localStorage for AI results), or null. */
+export function getCachedRecommendation(): StoredRecommendation | null {
+  const day = todayKey();
+  if (recMemory?.day === day) return recMemory;
+  const stored = readStoredRecommendation();
+  if (stored?.day === day) {
+    recMemory = stored;
+    return stored;
+  }
+  return null;
+}
+
+/**
+ * Save today's recommendation. AI results persist for the day (localStorage);
+ * the mock fallback stays in memory only, so a later visit tries the AI again.
+ */
+export function saveRecommendation(rec: Recommendation, source: RecommendationSource, originalTopic?: string): StoredRecommendation {
+  const entry: StoredRecommendation = { day: todayKey(), source, rec, originalTopic: originalTopic ?? rec.topic };
+  recMemory = entry;
+  if (source === "ai" && typeof window !== "undefined") {
+    try {
+      localStorage.setItem(REC_STORAGE_KEY, JSON.stringify(entry));
+    } catch {
+      /* storage full / unavailable: memory cache is enough */
+    }
+  }
+  return entry;
+}
+
+/** Clearly-labelled mock used when the AI route is unavailable. */
+export function getFallbackRecommendation(): Recommendation {
+  return getMockRecommendation();
+}
+
+/** "Ganti topik": rotate to the next alternative locally, without calling the API. */
+export function switchRecommendationTopic(): StoredRecommendation | null {
+  const current = getCachedRecommendation();
+  if (!current || current.rec.alternatives.length === 0) return current;
+  const { rec } = current;
+  const [next, ...rest] = rec.alternatives;
   const updated: Recommendation = {
-    ...current,
-    topic: nextAlt.topic,
-    tier: nextAlt.tier,
-    minutes: nextAlt.minutes,
-    alternatives: [...restAlts, oldAsAlt],
-    generatedAt: new Date().toISOString(),
+    ...rec,
+    topic: next.topic,
+    tier: next.tier,
+    minutes: next.minutes,
+    // radarItemId belonged to the original topic only
+    radarItemId: next.topic === current.originalTopic ? rec.radarItemId : undefined,
+    alternatives: [...rest, { topic: rec.topic, tier: rec.tier, minutes: rec.minutes }],
   };
-  recommendationStore[key] = updated;
-  return updated;
+  return saveRecommendation(updated, current.source, current.originalTopic);
 }
 
-
+/** Request body for POST /api/ai/recommend — no personal data (no names, no notes). */
+export function buildRecommendationRequest(): {
+  tasks: { subject: string; title: string; dueInHours: number }[];
+  doneTopics: string[];
+} {
+  const nowMs = Date.now();
+  const tasks = listAssignments()
+    .filter((a) => a.status !== "done")
+    .sort((a, b) => new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime())
+    .slice(0, 10)
+    .map((a) => ({
+      subject: a.subject,
+      title: a.title,
+      dueInHours: Math.round(((new Date(a.dueAt).getTime() - nowMs) / 3600000) * 10) / 10,
+    }));
+  const doneTopics = skillNodes.filter((n) => n.done).map((n) => n.title);
+  return { tasks, doneTopics };
+}
