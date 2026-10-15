@@ -7,10 +7,18 @@
  */
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { BackArrow, PageLabel } from "@/components/PageHead";
-import { addChecklistItem, listChecklist, toggleChecklistItem, deleteChecklistItem } from "@/lib/repo";
+import {
+  addChecklistItem,
+  deleteChecklistItem,
+  ensureSessionTerms,
+  getSessionTitle,
+  listChecklist,
+  saveSessionReflection,
+  toggleChecklistItem,
+} from "@/lib/repo";
 import { Checklist } from "@/components/Checklist";
 import { Button } from "@/components/ui/Button";
 
@@ -61,12 +69,31 @@ const SAMPLE_QUIZ: QuizQuestion[] = [
   },
 ];
 
+const noopSubscribe = () => () => {};
+
 export function SesiBelajarClient({ id }: { id: string }) {
   const router = useRouter();
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
 
   // Step 2 checklist state (terms)
-  const [terms, setTerms] = useState(() => listChecklist("material", id));
+  const [terms, setTerms] = useState(() => ensureSessionTerms(id));
+  const title = useSyncExternalStore(
+    noopSubscribe,
+    () => getSessionTitle(id),
+    () => "Sesi belajar"
+  );
+  const stepHeadingRef = useRef<HTMLHeadingElement>(null);
+  const firstRender = useRef(true);
+
+  // Move focus to the new step heading so keyboard / screen-reader users follow along.
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    stepHeadingRef.current?.focus();
+    window.scrollTo({ top: 0 });
+  }, [step]);
   const [newTermTitle, setNewTermTitle] = useState("");
 
   // Step 3 quiz state: record selected answer index per question id
@@ -109,7 +136,7 @@ export function SesiBelajarClient({ id }: { id: string }) {
     }
     setReflectionError("");
     // Simpan sebagai checkpoint materi di repo
-    addChecklistItem("material", id, "term", `Refleksi: ${reflection.trim()}`);
+    saveSessionReflection(id, reflection.trim());
     setSaved(true);
     setTimeout(() => {
       router.push("/belajar");
@@ -128,6 +155,13 @@ export function SesiBelajarClient({ id }: { id: string }) {
           {step} / 4
         </span>
       </header>
+
+      <div>
+        <p className="rn-label" style={{ letterSpacing: "0.08em" }}>Contoh materi</p>
+        <p style={{ fontFamily: "var(--font-display, sans-serif)", fontWeight: 700, fontSize: "1.25rem", lineHeight: 1.25, marginTop: "0.25rem" }}>
+          {title}
+        </p>
+      </div>
 
       {saved ? (
         <div style={{ padding: "4rem 1rem", textAlign: "center" }}>
@@ -153,7 +187,7 @@ export function SesiBelajarClient({ id }: { id: string }) {
                 >
                   Langkah 01 / 04
                 </span>
-                <h1 style={{ fontSize: "clamp(1.75rem, 6vw, 2.5rem)", fontWeight: 800, lineHeight: 1.15, marginTop: "0.3rem" }}>
+                <h1 ref={stepHeadingRef} tabIndex={-1} style={{ fontSize: "clamp(1.75rem, 6vw, 2.5rem)", fontWeight: 700, lineHeight: 1.15, marginTop: "0.3rem", outline: "none" }}>
                   Pahami dengan Analogi
                 </h1>
               </div>
@@ -202,7 +236,7 @@ export function SesiBelajarClient({ id }: { id: string }) {
                 >
                   Langkah 02 / 04
                 </span>
-                <h1 style={{ fontSize: "clamp(1.75rem, 6vw, 2.5rem)", fontWeight: 800, lineHeight: 1.15, marginTop: "0.3rem" }}>
+                <h1 ref={stepHeadingRef} tabIndex={-1} style={{ fontSize: "clamp(1.75rem, 6vw, 2.5rem)", fontWeight: 700, lineHeight: 1.15, marginTop: "0.3rem", outline: "none" }}>
                   Istilah & Checkpoint
                 </h1>
               </div>
@@ -248,7 +282,7 @@ export function SesiBelajarClient({ id }: { id: string }) {
                 >
                   Langkah 03 / 04
                 </span>
-                <h1 style={{ fontSize: "clamp(1.75rem, 6vw, 2.5rem)", fontWeight: 800, lineHeight: 1.15, marginTop: "0.3rem" }}>
+                <h1 ref={stepHeadingRef} tabIndex={-1} style={{ fontSize: "clamp(1.75rem, 6vw, 2.5rem)", fontWeight: 700, lineHeight: 1.15, marginTop: "0.3rem", outline: "none" }}>
                   Kuis Pemahaman
                 </h1>
                 <p style={{ fontSize: "0.85rem", color: "var(--rn-muted)", marginTop: "0.4rem" }}>
@@ -352,7 +386,7 @@ export function SesiBelajarClient({ id }: { id: string }) {
                 >
                   Langkah 04 / 04
                 </span>
-                <h1 style={{ fontSize: "clamp(1.75rem, 6vw, 2.5rem)", fontWeight: 800, lineHeight: 1.15, marginTop: "0.3rem" }}>
+                <h1 ref={stepHeadingRef} tabIndex={-1} style={{ fontSize: "clamp(1.75rem, 6vw, 2.5rem)", fontWeight: 700, lineHeight: 1.15, marginTop: "0.3rem", outline: "none" }}>
                   Refleksi Sesi
                 </h1>
                 <p style={{ fontSize: "0.9rem", color: "var(--rn-muted)", marginTop: "0.4rem" }}>

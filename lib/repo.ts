@@ -572,3 +572,37 @@ export async function askTutor(question: string, history: AskTurn[], mode: AskMo
     return { ok: false, reason: "unavailable" };
   }
 }
+
+// ==========================================
+// Learning session (/belajar/sesi/[id]) — mock content helpers
+// ==========================================
+
+export function getMaterial(id: string): Material | undefined {
+  return materials.find((m) => m.id === id);
+}
+
+/** Title for a session: the material, today's recommended topic, or a generic label. */
+export function getSessionTitle(id: string): string {
+  const mat = getMaterial(id);
+  if (mat) return mat.title;
+  const rec = getCachedRecommendation()?.rec;
+  if (rec && (id === "rekomendasi" || id === rec.radarItemId)) return rec.topic;
+  return "Sesi belajar";
+}
+
+/** Terms for the session; seeds 3 sample terms the first time a session has none. */
+export function ensureSessionTerms(id: string): ChecklistItem[] {
+  const existing = listChecklist("material", id);
+  if (existing.length > 0) return existing;
+  ["Server Component", "Client Component", "Direktif 'use client'"].forEach((t, i) =>
+    materialTerms.push({ id: `seed_${id}_${i}`, parentType: "material", parentId: id, kind: "term", title: t, done: false })
+  );
+  return listChecklist("material", id);
+}
+
+/** One-sentence reflection, saved as a (done) checkpoint on the material. */
+export function saveSessionReflection(id: string, sentence: string): ChecklistItem {
+  const item = addChecklistItem("material", id, "term", `Refleksi: ${sentence}`);
+  item.done = true;
+  return item;
+}
