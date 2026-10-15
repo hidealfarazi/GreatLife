@@ -7,14 +7,16 @@
  */
 "use client";
 
-import { useEffect, useState, useMemo, useSyncExternalStore } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import {
   listAssignments,
   archiveAssignment,
   deleteAssignment,
   listChecklist,
+  getSettings,
 } from "@/lib/repo";
+import { useRepo } from "@/lib/useRepo";
 import { formatTime } from "@/lib/mock";
 import { subjectColor } from "@/lib/subjectColors";
 import type { Assignment } from "@/lib/types";
@@ -22,12 +24,6 @@ import { CometDial } from "@/components/CometDial";
 import { SwipeRow } from "@/components/SwipeRow";
 import { Button } from "@/components/ui/Button";
 import { useNow } from "@/lib/useNow";
-
-const HINT_KEY = "rn_swipe_hint_shown";
-const subscribeHint = (cb: () => void) => {
-  window.addEventListener("rn_swipe_hint", cb);
-  return () => window.removeEventListener("rn_swipe_hint", cb);
-};
 
 function progressOf(item: Assignment): number {
   const steps = listChecklist("assignment", item.id).filter((c) => c.kind === "step");
@@ -42,22 +38,17 @@ interface GroupedAssignments {
 }
 
 export function AssignmentList() {
-  const [items, setItems] = useState<Assignment[]>(() =>
-    listAssignments().filter((a) => !a.archivedAt)
-  );
   const [pending, setPending] = useState<Assignment | null>(null);
+  // Saved tasks from the device (null while the database is loading).
+  const stored = useRepo(() => listAssignments());
+  const items = useMemo(
+    () => (stored ?? []).filter((a) => !a.archivedAt && a.id !== pending?.id),
+    [stored, pending]
+  );
   const nowMs = useNow();
   // Swipe hint is shown once: until the first time a row's actions are opened
-  // (SwipeRow stores the flag in localStorage and fires "rn_swipe_hint").
-  const hintDone = useSyncExternalStore(
-    subscribeHint,
-    () => localStorage.getItem(HINT_KEY) === "true",
-    () => true
-  );
-
-  const refresh = () => {
-    setItems(listAssignments().filter((a) => !a.archivedAt));
-  };
+  // (SwipeRow saves the flag in the settings).
+  const hintDone = useRepo(() => getSettings().swipeHintSeen) ?? true;
 
   // Real deletion happens 5 seconds after "Hapus" unless "Urungkan" clears `pending`.
   useEffect(() => {
@@ -65,26 +56,22 @@ export function AssignmentList() {
     const timer = setTimeout(() => {
       deleteAssignment(pending.id);
       setPending(null);
-      setItems(listAssignments().filter((a) => !a.archivedAt));
     }, 5000);
     return () => clearTimeout(timer);
   }, [pending]);
 
   const handleArchive = (id: string) => {
     archiveAssignment(id);
-    refresh();
   };
 
   const handleDeleteRequest = (item: Assignment) => {
     // A second delete while one is pending commits the first one right away.
     if (pending && pending.id !== item.id) deleteAssignment(pending.id);
-    setItems((prev) => prev.filter((a) => a.id !== item.id));
     setPending(item);
   };
 
   const handleUndo = () => {
     setPending(null);
-    refresh();
   };
 
   // Group items by: Terlambat, Hari Ini, Besok, Minggu Ini
@@ -144,8 +131,9 @@ export function AssignmentList() {
 
   let globalIndex = 0;
 
-  if (nowMs === null) {
-    // Server render / hydration: wait for the real local clock so no task is mis-grouped.
+  if (nowMs === null || stored === null) {
+    // Server render / hydration / database loading: wait for the real local clock and the
+    // saved tasks so nothing is mis-grouped. Quiet placeholder, no spinner.
     return <div aria-busy="true" style={{ minHeight: "12rem" }} />;
   }
 

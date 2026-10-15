@@ -41,7 +41,8 @@ bar before the subject label.
 - Field: 52px, radius 12px, same fill/border, round 36px (radius 10px) send button inside on
   the right (disabled while empty), 16px input, accent caret, `:focus-within` accent border +
   3px ring at 18%. Hidden label / aria-label, never placeholder-only. Enter submits.
-- Switch (Atmosfer): rounded 12px box with Nyala / Mati text, `role="switch"`.
+- Switch (Atmosfer, Pengingat deadline): rounded 12px box with Nyala / Mati text, `role="switch"`
+  (components/SheetSettings.tsx `SwitchRow`). Messages under controls are inline text, never alert().
 - All controls: `:focus-visible` outline 2px accent, offset 2px; touch target ≥ 44px.
   No focus box on mouse clicks. Real navigation links may stay as text.
 
@@ -51,7 +52,8 @@ bar before the subject label.
   Belajar, Lainnya), thin hand-made SVG icons (stroke 1.5, 22px), tiny mono labels, a 2px
   indicator that slides to the active item.
 - ≥ 1024px: slim permanent left rail instead of the dock.
-- "Lainnya" opens a side sheet: Arsip Tugas, Materi Belajar, Atmosfer switch, version label.
+- "Lainnya" opens a side sheet: Arsip Tugas, Materi Belajar, Atmosfer switch, Pengingat deadline
+  switch, Pasang aplikasi (hidden when installed), Cadangan data (Ekspor / Impor), version label.
 - Detail pages get a small back arrow in the header only (no "Kembali ke …" links).
 
 ## Atmosphere (Home hero only)

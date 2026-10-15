@@ -32,7 +32,11 @@ Next.js App Router + TypeScript (strict), plain CSS classes prefixed `rn-` in ap
 4. Rain video ONLY in the Home (Hari Ini) hero; it fades to the plain background on scroll.
    All other pages use the plain background. Never generate or process video in code.
    No Javanese script/text, batik, gold, kanji or sparkle icons.
-5. Keep ALL data access behind `lib/repo.ts` (mock now, Supabase later). Pages never call a DB directly.
+5. Keep ALL data access behind `lib/repo.ts` (IndexedDB on the device now via lib/db.ts, Supabase
+   later). Pages never call a DB directly; components read through `useRepo()` (lib/useRepo.ts).
+   Schema changes: bump DB_VERSION in lib/db.ts and add an upgrade step. No localStorage for data.
+   PWA: public/sw.js is hand-written; never cache /api/*. Cache versions come from the build
+   stamp automatically (next.config.ts), so there is nothing to bump by hand.
 6. Do NOT touch auth, RLS, Supabase config, env files, or API keys unless the task explicitly says so.
 7. AI/API keys only on the server (route handlers). Never in client code.
 8. No new dependencies without saying why first.

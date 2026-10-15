@@ -5,11 +5,12 @@
  * - Swipe left (touch/pen/mouse drag) reveals "Arsip" and "Hapus".
  * - Non-gesture alternative: long press (500ms) opens the actions, and a 44px "Aksi" button
  *   appears on keyboard focus (and on hover for mouse users).
- * - The first row nudges once to hint the gesture; the hint flag is stored in localStorage.
+ * - The first row nudges once to hint the gesture; both flags are saved in the settings (lib/repo.ts).
  */
 "use client";
 
 import { useRef, useState, useCallback, useEffect } from "react";
+import { getSettings, isRepoReady, updateSettings } from "@/lib/repo";
 
 interface SwipeRowProps {
   children: React.ReactNode;
@@ -22,18 +23,8 @@ interface SwipeRowProps {
 const ACTION_W = 80;
 const THRESHOLD = 40;
 const LONG_PRESS_MS = 500;
-const NUDGE_KEY = "rn_swipe_nudge_shown";
-const HINT_KEY = "rn_swipe_hint_shown";
-
 function markHintDone() {
-  try {
-    if (localStorage.getItem(HINT_KEY) !== "true") {
-      localStorage.setItem(HINT_KEY, "true");
-      window.dispatchEvent(new Event("rn_swipe_hint"));
-    }
-  } catch {
-    /* storage unavailable: ignore */
-  }
+  if (isRepoReady() && !getSettings().swipeHintSeen) updateSettings({ swipeHintSeen: true });
 }
 
 export function SwipeRow({ children, onArchive, onDelete, ariaLabel = "Baris tugas", isFirst = false }: SwipeRowProps) {
@@ -61,8 +52,9 @@ export function SwipeRow({ children, onArchive, onDelete, ariaLabel = "Baris tug
   useEffect(() => {
     if (!isFirst) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (localStorage.getItem(NUDGE_KEY)) return;
-    localStorage.setItem(NUDGE_KEY, "true");
+    // Rows only render after the repo has loaded, so the settings are real here.
+    if (!isRepoReady() || getSettings().swipeNudgeSeen) return;
+    updateSettings({ swipeNudgeSeen: true });
     const t1 = setTimeout(() => setOffset(-44), 700);
     const t2 = setTimeout(() => setOffset(0), 1300);
     return () => {

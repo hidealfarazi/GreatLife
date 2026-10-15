@@ -6,6 +6,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRepo } from "@/lib/useRepo";
 import {
   addChecklistItem,
   createMaterial,
@@ -28,16 +29,11 @@ function validateTitle(title: string, existing: Material[]): string | null {
 }
 
 export function MaterialsSection() {
-  const [materials, setMaterials] = useState<Material[]>(() => listMaterials());
+  const stored = useRepo<Material[]>(() => listMaterials());
+  const materials = stored ?? [];
   const [title, setTitle] = useState("");
   const [error, setError] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [, setVersion] = useState(0);
-
-  const refresh = () => {
-    setMaterials(listMaterials());
-    setVersion((v) => v + 1);
-  };
 
   const handleAdd = (value: string) => {
     const clean = value.trim().replace(/\s+/g, " ");
@@ -49,12 +45,11 @@ export function MaterialsSection() {
     createMaterial(clean);
     setTitle("");
     setError("");
-    refresh();
   };
 
   return (
     <section aria-labelledby="sec-materi">
-      <SectionHead id="sec-materi" number="05" title="Materiku" meta={`${materials.length} materi`} />
+      <SectionHead id="sec-materi" number="05" title="Materiku" meta={stored === null ? undefined : `${materials.length} materi`} />
 
       <div style={{ marginBottom: "1.25rem" }}>
         <Field
@@ -70,7 +65,9 @@ export function MaterialsSection() {
         />
       </div>
 
-      {materials.length === 0 ? (
+      {stored === null ? (
+        <div aria-busy="true" style={{ minHeight: "6rem" }} />
+      ) : materials.length === 0 ? (
         <p style={{ color: "var(--rn-muted)" }}>Belum ada materi.</p>
       ) : (
         <ul style={{ listStyle: "none" }}>
@@ -103,15 +100,12 @@ export function MaterialsSection() {
                       items={terms}
                       onToggle={(id) => {
                         toggleChecklistItem(id);
-                        refresh();
                       }}
                       onAdd={(t) => {
                         addChecklistItem("material", mat.id, "term", t);
-                        refresh();
                       }}
                       onDelete={(id) => {
                         deleteChecklistItem(id);
-                        refresh();
                       }}
                     />
                   </div>

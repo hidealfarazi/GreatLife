@@ -5,7 +5,8 @@
  * - >= 1024px: slim permanent left rail.
  * Hand-made thin SVG icons (stroke 1.5, 22px), tiny mono labels, a 2px indicator that slides
  * to the active item. "Lainnya" opens a side sheet: Arsip Tugas, Materi Belajar, Atmosfer
- * switch, version label. Focus rings only via :focus-visible (see globals.css).
+ * switch, Pengingat deadline switch, Pasang aplikasi, Cadangan data, version label
+ * (controls in components/SheetSettings.tsx). Focus rings only via :focus-visible (see globals.css).
  */
 "use client";
 
@@ -13,6 +14,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { setAtmosphereEnabled, useAtmosphereEnabled } from "@/lib/atmosphere";
+import { BackupSection, InstallSection, ReminderRow, SwitchRow } from "@/components/SheetSettings";
 
 const APP_VERSION = "0.1.0";
 
@@ -179,27 +181,16 @@ export function BottomNav() {
               </Link>
             </nav>
 
-            <div className="rn-sheet-row">
-              <div>
-                <div id="rn-atmo-label" style={{ fontWeight: 600, fontSize: "1rem" }}>Atmosfer</div>
-                <div className="rn-label" style={{ marginTop: "0.25rem", letterSpacing: "0.06em", textTransform: "none" }}>
-                  Video hujan &amp; cahaya di Hari Ini
-                </div>
-              </div>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={atmosphere}
-                aria-labelledby="rn-atmo-label"
-                className="rn-switch"
-                onClick={() => setAtmosphereEnabled(!atmosphere)}
-              >
-                <span className="rn-switch-track" aria-hidden="true">
-                  <span className="rn-switch-thumb" />
-                </span>
-                <span style={{ minWidth: "2.75em", textAlign: "left" }}>{atmosphere ? "Nyala" : "Mati"}</span>
-              </button>
-            </div>
+            <SwitchRow
+              title="Atmosfer"
+              description="Video hujan & cahaya di Hari Ini"
+              checked={atmosphere}
+              onToggle={() => setAtmosphereEnabled(!atmosphere)}
+            />
+
+            <ReminderRow />
+            <InstallSection />
+            <BackupSection />
 
             <p className="rn-label" style={{ marginTop: "auto" }}>
               Belajar v{APP_VERSION}
