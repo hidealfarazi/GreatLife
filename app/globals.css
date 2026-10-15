@@ -320,3 +320,62 @@ img, svg {
 @media (min-width: 1024px) {
   .rn-toast { bottom: 1.5rem; }
 }
+
+/* =============================================================
+   Home hero atmosphere (rain video + bokeh) — Home page only
+   ============================================================= */
+.rn-atmosphere {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 88svh;
+  min-height: 600px;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  transition: opacity 120ms linear;
+}
+.rn-atmosphere-poster {
+  position: absolute;
+  inset: 0;
+  background:
+    url("/rain-poster.jpg") center / cover no-repeat,
+    radial-gradient(120% 80% at 70% 20%, #161B22 0%, var(--rn-bg) 70%);
+}
+.rn-atmosphere-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.55;
+}
+.rn-bokeh {
+  position: absolute;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+  animation-name: rn-drift;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  will-change: transform;
+}
+@keyframes rn-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(var(--dx, 12px), var(--dy, 12px), 0); }
+}
+.rn-atmosphere-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(11, 13, 16, 0.55) 0%,
+    rgba(11, 13, 16, 0.45) 45%,
+    rgba(11, 13, 16, 0.8) 78%,
+    #0B0D10 100%
+  );
+}
+@media (prefers-reduced-motion: reduce) {
+  .rn-bokeh { animation: none; }
+}
