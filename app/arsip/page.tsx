@@ -4,6 +4,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRepo } from "@/lib/useRepo";
 import { listAssignments, restoreAssignment, deleteAssignment } from "@/lib/repo";
 import type { Assignment } from "@/lib/types";
 import { subjectColor } from "@/lib/subjectColors";
@@ -11,68 +12,50 @@ import { PageHead } from "@/components/PageHead";
 import { Button } from "@/components/ui/Button";
 
 export default function ArsipPage() {
-  const [archived, setArchived] = useState<Assignment[]>(() =>
-    listAssignments({ includeArchived: true }).filter((a) => a.archivedAt)
-  );
+  const stored = useRepo<Assignment[]>(() => listAssignments({ includeArchived: true }).filter((a) => a.archivedAt));
+  const archived = stored ?? [];
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-
-  const refresh = () => {
-    setArchived(listAssignments({ includeArchived: true }).filter((a) => a.archivedAt));
-  };
 
   const handleRestore = (id: string) => {
     restoreAssignment(id);
-    refresh();
   };
 
   return (
-    <div
-      style={{
-        background: "transparent",
-        color: "var(--rn-text)",
-        minHeight: "100dvh",
-        padding: "2.5rem 1.5rem 8.5rem",
-        maxWidth: "36rem",
-        margin: "0 auto",
-        display: "flex",
-        flexDirection: "column",
-        gap: "2rem",
-      }}
-    >
+    <div className="rn-page">
       <PageHead
         counter="04 / 04"
         section="ARSIP"
         title="Arsip"
-        sub={`Tugas yang telah diarsipkan (${archived.length})`}
+        sub={stored === null ? "Tugas yang telah diarsipkan" : `Tugas yang telah diarsipkan (${archived.length})`}
       />
 
-      {archived.length === 0 ? (
+      {stored === null ? (
+        <div aria-busy="true" style={{ minHeight: "12rem" }} />
+      ) : archived.length === 0 ? (
         <div
           style={{
-            padding: "3rem 1rem",
-            textAlign: "center",
-            border: "1px dashed rgba(143, 163, 191, 0.2)",
+            padding: "2rem 0",
+            borderTop: "1px solid var(--rn-line)",
           }}
         >
           <p style={{ fontFamily: "var(--font-mono, monospace)", fontSize: "0.75rem", color: "var(--rn-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
             Arsip kosong
           </p>
-          <p style={{ fontSize: "0.85rem", color: "var(--rn-muted)", marginTop: "0.5rem" }}>
+          <p style={{ fontSize: "1rem", color: "var(--rn-muted)", marginTop: "0.5rem" }}>
             Tugas yang diselesaikan dan diarsipkan akan muncul di sini.
           </p>
         </div>
       ) : (
-        <div role="list" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <div role="list" style={{ display: "flex", flexDirection: "column", borderTop: "1px solid var(--rn-line)" }}>
           {archived.map((item) => (
             <div
               key={item.id}
               role="listitem"
               style={{
                 padding: "1.25rem 0",
-                borderBottom: "1px solid rgba(168, 159, 140, 0.2)",
+                borderBottom: "1px solid var(--rn-line)",
                 display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
+                flexDirection: "column",
                 gap: "1rem",
               }}
             >
@@ -123,22 +106,24 @@ export default function ArsipPage() {
                 </p>
               </div>
 
-              <div style={{ display: "flex", gap: "0.5rem", flexShrink: 0, alignItems: "center" }}>
+              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
                 {confirmDeleteId === item.id ? (
                   <>
+                    <span style={{ flexBasis: "100%", fontSize: "0.9375rem", color: "var(--rn-alert)" }}>
+                      Hapus permanen? Tugas ini tidak bisa dipulihkan.
+                    </span>
                     <Button
                       variant="primary"
                       onClick={() => {
                         deleteAssignment(item.id);
                         setConfirmDeleteId(null);
-                        refresh();
                       }}
                       style={{
                         padding: "0 0.85rem",
                         fontSize: "0.6875rem",
                       }}
                     >
-                      Konfirmasi Hapus
+                      Ya, hapus
                     </Button>
                     <Button
                       variant="secondary"

@@ -16,6 +16,10 @@
   --rn-accent:  #8FA3BF;
   --rn-amber:   #E3B87A;
   --rn-alert:   #D9776B;
+  /* 1px hairline used for every content separator */
+  --rn-line:    rgba(143, 163, 191, 0.15);
+  /* Space reserved at the bottom so the floating dock never covers content */
+  --rn-dock-space: calc(64px + 12px + env(safe-area-inset-bottom, 0px) + 3.5rem);
 }
 
 html {
@@ -36,6 +40,11 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display, sans-serif);
+  /* Headings never break mid-word */
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: manual;
+  text-wrap: balance;
 }
 
 a {
@@ -138,3 +147,515 @@ img, svg {
   max-width: 100%;
 }
 
+
+/* =============================================================
+   Layout helpers
+   ============================================================= */
+.rn-page {
+  width: 100%;
+  max-width: 36rem;
+  margin: 0 auto;
+  min-height: 100dvh;
+  padding: 2.5rem 1.5rem var(--rn-dock-space);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  color: var(--rn-text);
+  background: transparent;
+}
+
+@media (min-width: 1024px) {
+  .rn-page { padding-bottom: 6rem; }
+}
+
+/* One consistent mono label pattern: "0N / 04 — SECTION" */
+.rn-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--rn-muted);
+}
+
+.rn-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Small icon-only control (back arrow, close) — 44px target, no box */
+.rn-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  color: var(--rn-text);
+  border-radius: 12px;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 200ms ease-out;
+}
+@media (hover: hover) {
+  .rn-icon-btn:hover { background: rgba(143, 163, 191, 0.12); }
+}
+
+/* =============================================================
+   rn-chip — selectable chip / option control
+   ============================================================= */
+.rn-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 1rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--rn-muted);
+  font-family: var(--font-body, sans-serif);
+  font-size: 0.875rem;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 200ms ease-out, border-color 200ms ease-out, color 200ms ease-out, transform 80ms ease-out;
+}
+@media (hover: hover) {
+  .rn-chip:hover:not(:disabled):not([aria-disabled="true"]) {
+    background: rgba(143, 163, 191, 0.12);
+    border-color: rgba(143, 163, 191, 0.45);
+  }
+}
+.rn-chip:active:not(:disabled) { transform: scale(0.98); }
+.rn-chip[aria-pressed="true"],
+.rn-chip[data-selected="true"] {
+  background: rgba(143, 163, 191, 0.18);
+  border-color: var(--rn-accent);
+  color: var(--rn-text);
+  font-weight: 600;
+}
+.rn-chip:disabled,
+.rn-chip[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* =============================================================
+   rn-switch — Nyala / Mati toggle (boxed control)
+   ============================================================= */
+.rn-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 44px;
+  padding: 0 0.75rem 0 0.5rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--rn-muted);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 200ms ease-out, border-color 200ms ease-out, color 200ms ease-out;
+}
+.rn-switch-track {
+  position: relative;
+  width: 34px;
+  height: 20px;
+  border-radius: 10px;
+  background: rgba(139, 147, 160, 0.35);
+  transition: background 200ms ease-out;
+}
+.rn-switch-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--rn-text);
+  transition: transform 200ms ease-out;
+}
+.rn-switch[aria-checked="true"] {
+  background: rgba(143, 163, 191, 0.18);
+  border-color: var(--rn-accent);
+  color: var(--rn-text);
+}
+.rn-switch[aria-checked="true"] .rn-switch-track { background: var(--rn-accent); }
+.rn-switch[aria-checked="true"] .rn-switch-thumb { transform: translateX(14px); background: var(--rn-bg); }
+@media (hover: hover) {
+  .rn-switch:hover {
+    border-color: rgba(143, 163, 191, 0.45);
+  }
+}
+
+/* Undo toast: sits just above the dock, plain bg + hairline (no shadow, no blur) */
+.rn-toast {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(64px + 12px + env(safe-area-inset-bottom, 0px) + 12px);
+  width: min(92vw, 420px);
+  min-height: 60px;
+  padding: 0.5rem 0.5rem 0.5rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  background: var(--rn-bg);
+  border: 1px solid var(--rn-line);
+  border-radius: 16px;
+  color: var(--rn-text);
+  z-index: 150;
+}
+@media (min-width: 1024px) {
+  .rn-toast { bottom: 1.5rem; }
+}
+
+/* =============================================================
+   Home hero atmosphere (rain video + bokeh) — Home page only
+   ============================================================= */
+.rn-atmosphere {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 88svh;
+  min-height: 600px;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  transition: opacity 120ms linear;
+}
+.rn-atmosphere-poster {
+  position: absolute;
+  inset: 0;
+  background:
+    url("/rain-poster.jpg") center / cover no-repeat,
+    radial-gradient(120% 80% at 70% 20%, #161B22 0%, var(--rn-bg) 70%);
+}
+.rn-atmosphere-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.55;
+}
+.rn-bokeh {
+  position: absolute;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+  animation-name: rn-drift;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  will-change: transform;
+}
+@keyframes rn-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(var(--dx, 12px), var(--dy, 12px), 0); }
+}
+.rn-atmosphere-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(11, 13, 16, 0.55) 0%,
+    rgba(11, 13, 16, 0.45) 45%,
+    rgba(11, 13, 16, 0.8) 78%,
+    #0B0D10 100%
+  );
+}
+@media (prefers-reduced-motion: reduce) {
+  .rn-bokeh { animation: none; }
+}
+
+/* =============================================================
+   Navigation — floating dock (< 1024px) and left rail (>= 1024px)
+   ============================================================= */
+.rn-dock {
+  position: fixed;
+  left: 50%;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  width: min(92vw, 420px);
+  height: 64px;
+  display: flex;
+  align-items: stretch;
+  background: rgba(11, 13, 16, 0.92);
+  border: 1px solid var(--rn-line);
+  border-radius: 24px;
+  z-index: 100;
+  overflow: hidden;
+}
+.rn-nav-item {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  min-height: 44px;
+  color: var(--rn-muted);
+  -webkit-tap-highlight-color: transparent;
+  transition: color 200ms ease-out;
+}
+.rn-nav-item[data-active="true"] { color: var(--rn-text); }
+@media (hover: hover) {
+  .rn-nav-item:hover { color: var(--rn-text); }
+}
+.rn-nav-item:focus:not(:focus-visible) { outline: none; }
+.rn-nav-item:focus-visible { outline-offset: -4px; border-radius: 16px; }
+.rn-nav-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.5625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.rn-dock-indicator {
+  position: absolute;
+  left: 0;
+  bottom: 6px;
+  width: 25%;
+  height: 2px;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  transition: transform 300ms ease-out;
+}
+.rn-dock-indicator > span,
+.rn-rail-indicator > span {
+  display: block;
+  background: var(--rn-accent);
+}
+.rn-dock-indicator > span { width: 18px; height: 2px; }
+
+.rn-rail { display: none; }
+
+@media (min-width: 1024px) {
+  body { padding-left: 80px; }
+  .rn-dock { display: none; }
+  .rn-rail {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 2.5rem;
+    gap: 2.5rem;
+    background: var(--rn-bg);
+    border-right: 1px solid var(--rn-line);
+    z-index: 100;
+  }
+  .rn-rail-mark {
+    font-family: var(--font-display, sans-serif);
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--rn-text);
+  }
+  .rn-rail-items {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .rn-rail-items .rn-nav-item { height: 68px; flex: none; }
+  .rn-rail-indicator {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 2px;
+    height: 68px;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+    transition: transform 300ms ease-out;
+  }
+  .rn-rail-indicator > span { width: 2px; height: 24px; }
+}
+
+/* Lainnya side sheet — plain panel, hairline edge, no blur */
+.rn-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: flex-end;
+  animation: rn-fade-in 200ms ease-out;
+}
+.rn-sheet {
+  width: min(380px, 88vw);
+  height: 100%;
+  background: var(--rn-bg);
+  border-left: 1px solid var(--rn-line);
+  padding: 1.5rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  overflow-y: auto;
+  animation: rn-slide-in 300ms ease-out;
+}
+.rn-sheet-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  min-height: 56px;
+  border-bottom: 1px solid var(--rn-line);
+  font-weight: 600;
+  color: var(--rn-text);
+}
+.rn-sheet-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--rn-line);
+}
+/* Column section in the sheet (Pasang aplikasi, Cadangan data): text, then controls */
+.rn-sheet-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--rn-line);
+}
+/* Inline message under a sheet control (never alert()) */
+.rn-sheet-note {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--rn-muted);
+}
+.rn-sheet-note[data-tone="alert"] { color: var(--rn-alert); }
+.rn-switch:disabled { opacity: 0.4; cursor: not-allowed; }
+@keyframes rn-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes rn-slide-in { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* Plain boxed text input (same look as Field, without the inner send button) */
+.rn-input {
+  caret-color: var(--rn-accent);
+  transition: border-color 200ms ease-out, box-shadow 200ms ease-out;
+}
+.rn-input::placeholder { color: var(--rn-muted); }
+.rn-input:focus { outline: none; }
+.rn-input:focus-visible,
+.rn-input:focus {
+  border-color: var(--rn-accent) !important;
+  box-shadow: 0 0 0 3px rgba(143, 163, 191, 0.18);
+}
+
+/* =============================================================
+   Swipe row (PR list) — transparent, radius 0, no border on the container
+   ============================================================= */
+.rn-swipe {
+  position: relative;
+  overflow: hidden;
+  background: transparent;
+  border-radius: 0;
+  touch-action: pan-y;
+}
+.rn-swipe-front {
+  position: relative;
+  z-index: 2;
+  background: transparent;
+  min-height: 44px;
+  -webkit-touch-callout: none;
+}
+.rn-swipe-front a,
+.rn-swipe-front img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+.rn-swipe-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  z-index: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: stretch;
+  visibility: hidden;
+}
+.rn-swipe-actions[data-visible="true"] { visibility: visible; }
+.rn-swipe-action {
+  width: 80px;
+  flex-shrink: 0;
+  color: var(--rn-bg);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.rn-swipe-action:focus-visible { outline-offset: -4px; outline-color: var(--rn-bg); }
+/* "Aksi": hidden until the row has keyboard focus (or mouse hover on hover devices) */
+.rn-swipe .rn-swipe-aksi {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto 0;
+  height: 44px;
+  opacity: 0;
+  pointer-events: none;
+  background: var(--rn-bg);
+}
+.rn-swipe:has(:focus-visible) .rn-swipe-aksi,
+.rn-swipe-aksi[aria-expanded="true"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+@media (hover: hover) and (pointer: fine) {
+  .rn-swipe:hover .rn-swipe-aksi { opacity: 1; pointer-events: auto; }
+}
+
+/* Text reveal on load (hero content) */
+.rn-reveal { animation: rn-reveal 600ms ease-out both; }
+@keyframes rn-reveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Comet Dial: progress draw on mount, then smooth updates */
+.rn-dial-arc {
+  transition: stroke-dashoffset 500ms ease-out;
+  animation: rn-dial-draw 800ms ease-out both;
+}
+@keyframes rn-dial-draw {
+  from { stroke-dashoffset: var(--rn-dial-from); }
+}
+
+/* Jalurmu path node (Belajar 02) */
+.rn-path-node {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 48px;
+  text-align: left;
+  font-size: 1rem;
+  border-bottom: 1px solid var(--rn-line);
+  -webkit-tap-highlight-color: transparent;
+}
+@media (hover: hover) {
+  .rn-path-node:hover span:nth-child(2) { color: var(--rn-text); }
+}

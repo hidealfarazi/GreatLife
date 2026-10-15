@@ -7,10 +7,19 @@
  */
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRepo, useRepoVersion } from "@/lib/useRepo";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { addChecklistItem, listChecklist, toggleChecklistItem, deleteChecklistItem } from "@/lib/repo";
+import { BackArrow, PageLabel } from "@/components/PageHead";
+import {
+  addChecklistItem,
+  deleteChecklistItem,
+  ensureSessionTerms,
+  getSessionTitle,
+  listChecklist,
+  saveSessionReflection,
+  toggleChecklistItem,
+} from "@/lib/repo";
 import { Checklist } from "@/components/Checklist";
 import { Button } from "@/components/ui/Button";
 
@@ -66,7 +75,26 @@ export function SesiBelajarClient({ id }: { id: string }) {
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
 
   // Step 2 checklist state (terms)
-  const [terms, setTerms] = useState(() => listChecklist("material", id));
+  const repoVersion = useRepoVersion();
+  const terms = useRepo(() => listChecklist("material", id)) ?? [];
+  const title = useRepo(() => getSessionTitle(id)) ?? "Sesi belajar";
+  const repoLoaded = repoVersion > 0;
+  // First visit of a session: seed sample terms once the saved data has loaded.
+  useEffect(() => {
+    if (repoLoaded) ensureSessionTerms(id);
+  }, [repoLoaded, id]);
+  const stepHeadingRef = useRef<HTMLHeadingElement>(null);
+  const firstRender = useRef(true);
+
+  // Move focus to the new step heading so keyboard / screen-reader users follow along.
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    stepHeadingRef.current?.focus();
+    window.scrollTo({ top: 0 });
+  }, [step]);
   const [newTermTitle, setNewTermTitle] = useState("");
 
   // Step 3 quiz state: record selected answer index per question id
@@ -77,23 +105,16 @@ export function SesiBelajarClient({ id }: { id: string }) {
   const [reflectionError, setReflectionError] = useState("");
   const [saved, setSaved] = useState(false);
 
-  const refreshTerms = () => {
-    setTerms(listChecklist("material", id));
-  };
-
   const handleToggleTerm = (termId: string) => {
     toggleChecklistItem(termId);
-    refreshTerms();
   };
 
   const handleAddTerm = (title: string) => {
     addChecklistItem("material", id, "term", title);
-    refreshTerms();
   };
 
   const handleDeleteTerm = (termId: string) => {
     deleteChecklistItem(termId);
-    refreshTerms();
   };
 
   const handleAnswerSelect = (qId: number, optIndex: number) => {
@@ -109,7 +130,7 @@ export function SesiBelajarClient({ id }: { id: string }) {
     }
     setReflectionError("");
     // Simpan sebagai checkpoint materi di repo
-    addChecklistItem("material", id, "term", `Refleksi: ${reflection.trim()}`);
+    saveSessionReflection(id, reflection.trim());
     setSaved(true);
     setTimeout(() => {
       router.push("/belajar");
@@ -117,46 +138,23 @@ export function SesiBelajarClient({ id }: { id: string }) {
   };
 
   return (
-    <div
-      style={{
-        background: "transparent",
-        color: "var(--rn-text)",
-        minHeight: "100dvh",
-        padding: "2.5rem 1.5rem 8.5rem",
-        maxWidth: "36rem",
-        margin: "0 auto",
-        display: "flex",
-        flexDirection: "column",
-        gap: "2rem",
-      }}
-    >
-      {/* Top Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <Link
-          href="/belajar"
-          aria-label="Kembali ke Belajar"
-          style={{
-            fontFamily: "var(--font-mono, monospace)",
-            fontSize: "0.6875rem",
-            letterSpacing: "0.12em",
-            color: "var(--rn-muted)",
-            textDecoration: "underline",
-            textUnderlineOffset: "3px",
-          }}
-        >
-          ← KEMBALI
-        </Link>
-        <span
-          style={{
-            fontFamily: "var(--font-mono, monospace)",
-            fontSize: "0.6875rem",
-            letterSpacing: "0.12em",
-            color: "var(--rn-accent)",
-            fontWeight: 700,
-          }}
-        >
-          SESI BELAJAR {id.toUpperCase()} · {step} / 4
+    <div className="rn-page">
+      {/* Top Header: back arrow + uniform label */}
+      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.75rem", minHeight: 44 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+          <BackArrow href="/belajar" label="Kembali ke Belajar" />
+          <PageLabel counter="03 / 04" section="Sesi belajar" />
+        </div>
+        <span className="rn-label" style={{ color: "var(--rn-accent)" }}>
+          {step} / 4
         </span>
+      </header>
+
+      <div>
+        <p className="rn-label" style={{ letterSpacing: "0.08em" }}>Contoh materi</p>
+        <p style={{ fontFamily: "var(--font-display, sans-serif)", fontWeight: 700, fontSize: "1.25rem", lineHeight: 1.25, marginTop: "0.25rem" }}>
+          {title}
+        </p>
       </div>
 
       {saved ? (
@@ -183,7 +181,7 @@ export function SesiBelajarClient({ id }: { id: string }) {
                 >
                   Langkah 01 / 04
                 </span>
-                <h1 style={{ fontSize: "clamp(1.75rem, 6vw, 2.5rem)", fontWeight: 800, lineHeight: 1.15, marginTop: "0.3rem" }}>
+                <h1 ref={stepHeadingRef} tabIndex={-1} style={{ fontSize: "clamp(1.75rem, 6vw, 2.5rem)", fontWeight: 700, lineHeight: 1.15, marginTop: "0.3rem", outline: "none" }}>
                   Pahami dengan Analogi
                 </h1>
               </div>
@@ -191,8 +189,8 @@ export function SesiBelajarClient({ id }: { id: string }) {
               <div
                 style={{
                   padding: "1.5rem 0",
-                  borderTop: "1px solid rgba(168, 159, 140, 0.2)",
-                  borderBottom: "1px solid rgba(168, 159, 140, 0.2)",
+                  borderTop: "1px solid var(--rn-line)",
+                  borderBottom: "1px solid var(--rn-line)",
                   display: "flex",
                   flexDirection: "column",
                   gap: "1rem",
@@ -211,7 +209,7 @@ export function SesiBelajarClient({ id }: { id: string }) {
                   variant="primary"
                   onClick={() => setStep(2)}
                 >
-                  Lanjut ke Istilah →
+                  Lanjut ke Istilah
                 </Button>
               </div>
             </div>
@@ -232,7 +230,7 @@ export function SesiBelajarClient({ id }: { id: string }) {
                 >
                   Langkah 02 / 04
                 </span>
-                <h1 style={{ fontSize: "clamp(1.75rem, 6vw, 2.5rem)", fontWeight: 800, lineHeight: 1.15, marginTop: "0.3rem" }}>
+                <h1 ref={stepHeadingRef} tabIndex={-1} style={{ fontSize: "clamp(1.75rem, 6vw, 2.5rem)", fontWeight: 700, lineHeight: 1.15, marginTop: "0.3rem", outline: "none" }}>
                   Istilah & Checkpoint
                 </h1>
               </div>
@@ -251,13 +249,13 @@ export function SesiBelajarClient({ id }: { id: string }) {
                   variant="secondary"
                   onClick={() => setStep(1)}
                 >
-                  ← Kembali
+                  Sebelumnya
                 </Button>
                 <Button
                   variant="primary"
                   onClick={() => setStep(3)}
                 >
-                  Lanjut Kuis →
+                  Lanjut Kuis
                 </Button>
               </div>
             </div>
@@ -278,7 +276,7 @@ export function SesiBelajarClient({ id }: { id: string }) {
                 >
                   Langkah 03 / 04
                 </span>
-                <h1 style={{ fontSize: "clamp(1.75rem, 6vw, 2.5rem)", fontWeight: 800, lineHeight: 1.15, marginTop: "0.3rem" }}>
+                <h1 ref={stepHeadingRef} tabIndex={-1} style={{ fontSize: "clamp(1.75rem, 6vw, 2.5rem)", fontWeight: 700, lineHeight: 1.15, marginTop: "0.3rem", outline: "none" }}>
                   Kuis Pemahaman
                 </h1>
                 <p style={{ fontSize: "0.85rem", color: "var(--rn-muted)", marginTop: "0.4rem" }}>
@@ -292,44 +290,37 @@ export function SesiBelajarClient({ id }: { id: string }) {
                   const isAnswered = answeredIndex !== undefined;
 
                   return (
-                    <div key={q.id} style={{ display: "flex", flexDirection: "column", gap: "0.85rem", paddingBottom: "1.5rem", borderBottom: "1px solid rgba(168, 159, 140, 0.2)" }}>
+                    <div key={q.id} style={{ display: "flex", flexDirection: "column", gap: "0.85rem", paddingBottom: "1.5rem", borderBottom: "1px solid var(--rn-line)" }}>
                       <p style={{ fontSize: "1.05rem", fontWeight: 700, lineHeight: 1.4 }}>
                         {idx + 1}. {q.question}
                       </p>
 
                       <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                         {q.options.map((opt, optIdx) => {
-                          let optBg = "transparent";
-                          let optBorder = "1px solid rgba(143, 163, 191, 0.2)";
-                          let optColor = "var(--rn-text)";
-
-                          if (isAnswered) {
-                            if (optIdx === q.correctIndex) {
-                              optBg = "rgba(126, 157, 132, 0.15)";
-                              optBorder = "1px solid #7E9D84";
-                            } else if (optIdx === answeredIndex) {
-                              optBg = "rgba(217, 119, 107, 0.15)";
-                              optBorder = "1px solid var(--rn-alert)";
-                            }
-                          }
+                          const isCorrect = isAnswered && optIdx === q.correctIndex;
+                          const isWrong = isAnswered && optIdx === answeredIndex && optIdx !== q.correctIndex;
 
                           return (
                             <button
                               key={opt}
                               type="button"
+                              className="rn-chip"
+                              aria-pressed={answeredIndex === optIdx}
+                              aria-disabled={isAnswered && !isCorrect && !isWrong ? true : undefined}
                               onClick={() => handleAnswerSelect(q.id, optIdx)}
                               style={{
+                                justifyContent: "flex-start",
                                 textAlign: "left",
-                                padding: "0.75rem 1rem",
-                                background: optBg,
-                                border: optBorder,
-                                color: optColor,
-                                fontSize: "0.9rem",
+                                padding: "0.625rem 1rem",
+                                color: "var(--rn-text)",
+                                fontSize: "0.9375rem",
                                 lineHeight: 1.4,
                                 cursor: isAnswered ? "default" : "pointer",
-                                minHeight: 44,
-                                display: "flex",
-                                alignItems: "center",
+                                ...(isCorrect
+                                  ? { background: "rgba(143, 163, 191, 0.18)", borderColor: "var(--rn-accent)" }
+                                  : isWrong
+                                  ? { background: "rgba(217, 119, 107, 0.12)", borderColor: "var(--rn-alert)" }
+                                  : {}),
                               }}
                             >
                               {opt}
@@ -341,10 +332,9 @@ export function SesiBelajarClient({ id }: { id: string }) {
                       {isAnswered && (
                         <div
                           style={{
-                            padding: "0.85rem 1rem",
-                            background: "rgba(143, 163, 191, 0.08)",
-                            borderLeft: "2px solid var(--rn-accent)",
-                            fontSize: "0.875rem",
+                            padding: "0.25rem 0 0.25rem 1rem",
+                            borderLeft: "1px solid var(--rn-accent)",
+                            fontSize: "0.9375rem",
                             lineHeight: 1.5,
                             color: "var(--rn-muted)",
                             marginTop: "0.5rem",
@@ -363,13 +353,13 @@ export function SesiBelajarClient({ id }: { id: string }) {
                   variant="secondary"
                   onClick={() => setStep(2)}
                 >
-                  ← Kembali
+                  Sebelumnya
                 </Button>
                 <Button
                   variant="primary"
                   onClick={() => setStep(4)}
                 >
-                  Lanjut Refleksi →
+                  Lanjut Refleksi
                 </Button>
               </div>
             </div>
@@ -390,7 +380,7 @@ export function SesiBelajarClient({ id }: { id: string }) {
                 >
                   Langkah 04 / 04
                 </span>
-                <h1 style={{ fontSize: "clamp(1.75rem, 6vw, 2.5rem)", fontWeight: 800, lineHeight: 1.15, marginTop: "0.3rem" }}>
+                <h1 ref={stepHeadingRef} tabIndex={-1} style={{ fontSize: "clamp(1.75rem, 6vw, 2.5rem)", fontWeight: 700, lineHeight: 1.15, marginTop: "0.3rem", outline: "none" }}>
                   Refleksi Sesi
                 </h1>
                 <p style={{ fontSize: "0.9rem", color: "var(--rn-muted)", marginTop: "0.4rem" }}>
@@ -413,6 +403,10 @@ export function SesiBelajarClient({ id }: { id: string }) {
                     if (reflectionError) setReflectionError("");
                   }}
                   placeholder="Contoh: Saya paham kapan harus pakai Server vs Client Component..."
+                  aria-label="Refleksi satu kalimat"
+                  aria-invalid={!!reflectionError}
+                  autoComplete="off"
+                  className="rn-input"
                   style={{
                     width: "100%",
                     height: "52px",
@@ -426,7 +420,6 @@ export function SesiBelajarClient({ id }: { id: string }) {
                     fontFamily: "var(--font-body, sans-serif)",
                     fontSize: "1rem",
                     minHeight: 44,
-                    outline: "none",
                   }}
                 />
                 {reflectionError && (
@@ -449,13 +442,13 @@ export function SesiBelajarClient({ id }: { id: string }) {
                   variant="secondary"
                   onClick={() => setStep(3)}
                 >
-                  ← Kembali
+                  Sebelumnya
                 </Button>
                 <Button
                   type="submit"
                   variant="primary"
                 >
-                  Selesai & Simpan ✓
+                  Selesai & Simpan
                 </Button>
               </div>
             </form>

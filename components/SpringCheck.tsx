@@ -94,7 +94,7 @@ export function SpringCheck({ label, checked, onChange, ariaLabel }: SpringCheck
             >
               <motion.path
                 d={TICK_PATH}
-                stroke="#12100E"
+                style={{ stroke: "var(--rn-bg)" }}
                 strokeWidth={3}
                 strokeLinecap="round"
                 strokeLinejoin="round"

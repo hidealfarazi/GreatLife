@@ -34,3 +34,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .data/
+
+# rain video source files are produced on the owner's machine; never commit them
+/public/*.webm
+/public/rain.mp4

@@ -1,449 +1,200 @@
 /**
  * components/BottomNav.tsx
- * Floating dock navbar for mobile (<1024px) and left sidebar rail for desktop (>=1024px).
- * Custom thin SVG icons, sliding 2px active indicator, zero focus ring boxes,
- * and slide-over sheet for "Lainnya" (Archive, Materials, Rain Toggle, Settings).
+ * Main navigation.
+ * - < 1024px: floating dock at the bottom (min(92vw, 420px) x 64px, 12px above the safe area).
+ * - >= 1024px: slim permanent left rail.
+ * Hand-made thin SVG icons (stroke 1.5, 22px), tiny mono labels, a 2px indicator that slides
+ * to the active item. "Lainnya" opens a side sheet: Arsip Tugas, Materi Belajar, Atmosfer
+ * switch, Pengingat deadline switch, Pasang aplikasi, Cadangan data, version label
+ * (controls in components/SheetSettings.tsx). Focus rings only via :focus-visible (see globals.css).
  */
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { setAtmosphereEnabled, useAtmosphereEnabled } from "@/lib/atmosphere";
+import { BackupSection, InstallSection, ReminderRow, SwitchRow } from "@/components/SheetSettings";
+
+const APP_VERSION = "0.1.0";
+
+type IconName = "today" | "pr" | "learn" | "more";
+
+function NavIcon({ name }: { name: IconName }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {name === "today" && (
+        <>
+          {/* Horizon with a rising half sun */}
+          <path d="M3 17.5h18" />
+          <path d="M7 17.5a5 5 0 0 1 10 0" />
+          <path d="M12 6v2.5" />
+          <path d="M5.4 10l1.6 1.4" />
+          <path d="M18.6 10L17 11.4" />
+          <path d="M8 20.5h8" />
+        </>
+      )}
+      {name === "pr" && (
+        <>
+          {/* Sheet with a folded corner and a tick */}
+          <path d="M6.5 3.5h8l3 3v14h-11z" />
+          <path d="M14.5 3.5v3h3" />
+          <path d="M9.5 13.5l2 2 3.5-4" />
+        </>
+      )}
+      {name === "learn" && (
+        <>
+          {/* Open book */}
+          <path d="M12 7c-2-1.6-5-2.1-8-1.6v13c3-.5 6 0 8 1.6 2-1.6 5-2.1 8-1.6v-13c-3-.5-6 0-8 1.6z" />
+          <path d="M12 7v13" />
+        </>
+      )}
+      {name === "more" && (
+        <>
+          {/* Three uneven lines */}
+          <path d="M5 8h14" />
+          <path d="M5 12h14" />
+          <path d="M5 16h8" />
+        </>
+      )}
+    </svg>
+  );
+}
+
+const NAVS: { href: string; label: string; icon: IconName }[] = [
+  { href: "/", label: "Hari Ini", icon: "today" },
+  { href: "/pr", label: "PR", icon: "pr" },
+  { href: "/belajar", label: "Belajar", icon: "learn" },
+];
+
+function activeIndexFor(pathname: string, sheetOpen: boolean): number {
+  if (sheetOpen) return 3;
+  if (pathname === "/") return 0;
+  if (pathname.startsWith("/pr")) return 1;
+  if (pathname.startsWith("/belajar")) return 2;
+  if (pathname.startsWith("/arsip") || pathname.startsWith("/more")) return 3;
+  return -1;
+}
 
 export function BottomNav() {
   const pathname = usePathname();
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [rainEnabled, setRainEnabled] = useState(true);
+  const atmosphere = useAtmosphereEnabled();
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const active = activeIndexFor(pathname, sheetOpen);
 
+  // Sheet: focus the close button on open, Escape closes, lock page scroll.
   useEffect(() => {
-    const saved = localStorage.getItem("rn_rain_enabled");
-    if (saved !== null) setRainEnabled(saved === "true");
-  }, []);
+    if (!sheetOpen) return;
+    closeRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSheetOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [sheetOpen]);
 
-  const toggleRain = () => {
-    const next = !rainEnabled;
-    setRainEnabled(next);
-    localStorage.setItem("rn_rain_enabled", String(next));
-    window.dispatchEvent(new Event("rn_rain_toggle"));
-  };
-
-  const navs = [
-    { href: "/", label: "Hari Ini", icon: "sun" },
-    { href: "/pr", label: "PR", icon: "check" },
-    { href: "/belajar", label: "Belajar", icon: "book" },
-    { href: "#more", label: "Lainnya", icon: "menu", isMore: true },
-  ];
+  const renderItems = (variant: "dock" | "rail") => (
+    <>
+      {NAVS.map((n, i) => (
+        <Link
+          key={n.href}
+          href={n.href}
+          className="rn-nav-item"
+          data-active={active === i}
+          aria-current={active === i ? "page" : undefined}
+        >
+          <NavIcon name={n.icon} />
+          <span className="rn-nav-label">{n.label}</span>
+        </Link>
+      ))}
+      <button
+        type="button"
+        className="rn-nav-item"
+        data-active={active === 3}
+        aria-haspopup="dialog"
+        aria-expanded={sheetOpen}
+        onClick={() => setSheetOpen(true)}
+      >
+        <NavIcon name="more" />
+        <span className="rn-nav-label">Lainnya</span>
+      </button>
+      {active >= 0 && (
+        <span
+          aria-hidden="true"
+          className={variant === "dock" ? "rn-dock-indicator" : "rn-rail-indicator"}
+          style={{ transform: variant === "dock" ? `translateX(${active * 100}%)` : `translateY(${active * 100}%)` }}
+        >
+          <span />
+        </span>
+      )}
+    </>
+  );
 
   return (
     <>
-      {/* Mobile Floating Dock (<1024px) */}
-      <nav
-        aria-label="Navigasi utama"
-        className="mobile-dock"
-        style={{
-          position: "fixed",
-          bottom: "1.25rem",
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: "min(92vw, 420px)",
-          height: "64px",
-          background: "rgba(11, 13, 16, 0.92)",
-          backdropFilter: "blur(12px)",
-          border: "1px solid rgba(143, 163, 191, 0.15)",
-          borderRadius: "32px",
-          display: "flex",
-          justifyContent: "space-around",
-          alignItems: "center",
-          zIndex: 100,
-          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4)",
-        }}
-      >
-        {navs.map((n) => {
-          const isActive = !n.isMore && pathname === n.href;
-          const isMoreActive = n.isMore && sheetOpen;
-
-          return n.isMore ? (
-            <button
-              key={n.label}
-              onClick={() => setSheetOpen(true)}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "0.2rem",
-                flex: 1,
-                height: "100%",
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-                color: isMoreActive ? "var(--rn-accent)" : "var(--rn-muted)",
-                position: "relative",
-                outline: "none",
-              }}
-              aria-label="Menu Lainnya"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="18" x2="21" y2="18" />
-              </svg>
-              <span
-                style={{
-                  fontFamily: "var(--font-mono, monospace)",
-                  fontSize: "0.5625rem",
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
-                }}
-              >
-                {n.label}
-              </span>
-              {(isMoreActive) && (
-                <span
-                  style={{
-                    position: "absolute",
-                    bottom: "6px",
-                    width: "16px",
-                    height: "2px",
-                    background: "var(--rn-accent)",
-                    borderRadius: "1px",
-                  }}
-                />
-              )}
-            </button>
-          ) : (
-            <Link
-              key={n.href}
-              href={n.href}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "0.2rem",
-                flex: 1,
-                height: "100%",
-                color: isActive ? "var(--rn-accent)" : "var(--rn-muted)",
-                textDecoration: "none",
-                position: "relative",
-                outline: "none",
-              }}
-              aria-current={isActive ? "page" : undefined}
-            >
-              {n.icon === "sun" && (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="4" />
-                  <line x1="12" y1="2" x2="12" y2="4" />
-                  <line x1="12" y1="20" x2="12" y2="22" />
-                  <line x1="4.93" y1="4.93" x2="6.34" y2="6.34" />
-                  <line x1="17.66" y1="17.66" x2="19.07" y2="19.07" />
-                  <line x1="2" y1="12" x2="4" y2="12" />
-                  <line x1="20" y1="12" x2="22" y2="12" />
-                  <line x1="4.93" y1="19.07" x2="6.34" y2="17.66" />
-                  <line x1="17.66" y1="6.34" x2="19.07" y2="4.93" />
-                </svg>
-              )}
-              {n.icon === "check" && (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="9 11 12 14 22 4" />
-                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                </svg>
-              )}
-              {n.icon === "book" && (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                </svg>
-              )}
-              <span
-                style={{
-                  fontFamily: "var(--font-mono, monospace)",
-                  fontSize: "0.5625rem",
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
-                }}
-              >
-                {n.label}
-              </span>
-              {isActive && (
-                <span
-                  style={{
-                    position: "absolute",
-                    bottom: "6px",
-                    width: "16px",
-                    height: "2px",
-                    background: "var(--rn-accent)",
-                    borderRadius: "1px",
-                  }}
-                />
-              )}
-            </Link>
-          );
-        })}
+      <nav aria-label="Navigasi utama" className="rn-dock">
+        {renderItems("dock")}
       </nav>
 
-      {/* Desktop Left Rail (>=1024px) */}
-      <aside
-        className="desktop-rail"
-        aria-label="Navigasi samping"
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          bottom: 0,
-          width: "80px",
-          background: "var(--rn-bg)",
-          borderRight: "1px solid rgba(143, 163, 191, 0.15)",
-          display: "none",
-          flexDirection: "column",
-          alignItems: "center",
-          paddingTop: "2.5rem",
-          gap: "2rem",
-          zIndex: 100,
-        }}
-      >
-        <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", fontWeight: 700, color: "var(--rn-accent)" }}>
-          B
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", width: "100%", alignItems: "center" }}>
-          {navs.map((n) => {
-            const isActive = !n.isMore && pathname === n.href;
-            const isMoreActive = n.isMore && sheetOpen;
-            return n.isMore ? (
-              <button
-                key={n.label}
-                onClick={() => setSheetOpen(true)}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: "0.3rem",
-                  color: isMoreActive ? "var(--rn-accent)" : "var(--rn-muted)",
-                  background: "transparent",
-                  border: "none",
-                  cursor: "pointer",
-                  padding: "0.5rem",
-                  width: "100%",
-                }}
-                title={n.label}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="3" y1="12" x2="21" y2="12" />
-                  <line x1="3" y1="6" x2="21" y2="6" />
-                  <line x1="3" y1="18" x2="21" y2="18" />
-                </svg>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.5rem", textTransform: "uppercase" }}>{n.label}</span>
-              </button>
-            ) : (
-              <Link
-                key={n.href}
-                href={n.href}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: "0.3rem",
-                  color: isActive ? "var(--rn-accent)" : "var(--rn-muted)",
-                  textDecoration: "none",
-                  padding: "0.5rem",
-                  width: "100%",
-                  position: "relative",
-                }}
-                title={n.label}
-              >
-                {n.icon === "sun" && (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="4" />
-                    <line x1="12" y1="2" x2="12" y2="4" />
-                    <line x1="12" y1="20" x2="12" y2="22" />
-                    <line x1="4.93" y1="4.93" x2="6.34" y2="6.34" />
-                    <line x1="17.66" y1="17.66" x2="19.07" y2="19.07" />
-                    <line x1="2" y1="12" x2="4" y2="12" />
-                    <line x1="20" y1="12" x2="22" y2="12" />
-                    <line x1="4.93" y1="19.07" x2="6.34" y2="17.66" />
-                    <line x1="17.66" y1="6.34" x2="19.07" y2="4.93" />
-                  </svg>
-                )}
-                {n.icon === "check" && (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="9 11 12 14 22 4" />
-                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                  </svg>
-                )}
-                {n.icon === "book" && (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                  </svg>
-                )}
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.5rem", textTransform: "uppercase" }}>{n.label}</span>
-                {isActive && (
-                  <span
-                    style={{
-                      position: "absolute",
-                      left: 0,
-                      top: "20%",
-                      bottom: "20%",
-                      width: "2px",
-                      background: "var(--rn-accent)",
-                    }}
-                  />
-                )}
-              </Link>
-            );
-          })}
-        </div>
-      </aside>
+      <nav aria-label="Navigasi samping" className="rn-rail">
+        <span className="rn-rail-mark" aria-hidden="true">B</span>
+        <div className="rn-rail-items">{renderItems("rail")}</div>
+      </nav>
 
-      {/* Media query styling for desktop rail vs mobile dock */}
-      <style>{`
-        @media (min-width: 1024px) {
-          .mobile-dock { display: none !important; }
-          .desktop-rail { display: flex !important; }
-          body { padding-left: 80px; }
-        }
-      `}</style>
-
-      {/* Slide-over Sheet for "Lainnya" */}
       {sheetOpen && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 200,
-            background: "rgba(0, 0, 0, 0.6)",
-            backdropFilter: "blur(4px)",
-            display: "flex",
-            justifyContent: "flex-end",
-          }}
-          onClick={() => setSheetOpen(false)}
-        >
+        <div className="rn-sheet-overlay" onClick={() => setSheetOpen(false)}>
           <div
-            style={{
-              width: "min(380px, 85vw)",
-              height: "100%",
-              background: "#0B0D10",
-              borderLeft: "1px solid rgba(143, 163, 191, 0.15)",
-              padding: "2.5rem 2rem",
-              display: "flex",
-              flexDirection: "column",
-              gap: "2rem",
-              overflowY: "auto",
-            }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="rn-sheet-title"
+            className="rn-sheet"
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", letterSpacing: "0.15em", color: "var(--rn-muted)", textTransform: "uppercase" }}>
-                04 / 04 — LAINNYA
-              </span>
-              <button
-                onClick={() => setSheetOpen(false)}
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "1rem",
-                  color: "var(--rn-text)",
-                  padding: "0.5rem",
-                  cursor: "pointer",
-                }}
-                aria-label="Tutup menu"
-              >
-                ✕
+              <span className="rn-label">04 / 04 — Lainnya</span>
+              <button ref={closeRef} type="button" className="rn-icon-btn" onClick={() => setSheetOpen(false)} aria-label="Tutup menu">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
+                  <path d="M6.5 6.5l11 11" />
+                  <path d="M17.5 6.5l-11 11" />
+                </svg>
               </button>
             </div>
 
-            <h2 style={{ fontSize: "1.75rem", fontWeight: 800, letterSpacing: "-0.02em" }}>Menu & Alat</h2>
+            <h2 id="rn-sheet-title" style={{ fontSize: "2rem", fontWeight: 700, letterSpacing: "-0.02em" }}>
+              Lainnya
+            </h2>
 
-            <nav style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              <Link
-                href="/arsip"
-                onClick={() => setSheetOpen(false)}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "1rem 0",
-                  borderBottom: "1px solid rgba(168, 159, 140, 0.2)",
-                  textDecoration: "none",
-                  fontWeight: 600,
-                }}
-              >
+            <nav aria-label="Menu lainnya" style={{ display: "flex", flexDirection: "column" }}>
+              <Link href="/arsip" onClick={() => setSheetOpen(false)} className="rn-sheet-link">
                 <span>Arsip Tugas</span>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--rn-muted)" }}>→</span>
+                <span className="rn-label">Selesai &amp; diarsipkan</span>
               </Link>
-              <Link
-                href="/belajar"
-                onClick={() => setSheetOpen(false)}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "1rem 0",
-                  borderBottom: "1px solid rgba(168, 159, 140, 0.2)",
-                  textDecoration: "none",
-                  fontWeight: 600,
-                }}
-              >
+              <Link href="/belajar" onClick={() => setSheetOpen(false)} className="rn-sheet-link">
                 <span>Materi Belajar</span>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--rn-muted)" }}>→</span>
+                <span className="rn-label">Istilah &amp; sesi</span>
               </Link>
             </nav>
 
-            {/* Atmosphere toggle */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "1rem 0",
-                borderBottom: "1px solid rgba(168, 159, 140, 0.2)",
-              }}
-            >
-              <div>
-                <div style={{ fontWeight: 600, fontSize: "0.9375rem" }}>Atmosfer Hujan</div>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--rn-muted)", marginTop: "0.2rem" }}>
-                  Video bokeh latar hero
-                </div>
-              </div>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={rainEnabled}
-                aria-label="Atmosfer Hujan"
-                onClick={toggleRain}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  minHeight: "44px",
-                  padding: "0.25rem 0.85rem",
-                  borderRadius: "22px",
-                  background: rainEnabled ? "rgba(143, 163, 191, 0.18)" : "rgba(255, 255, 255, 0.04)",
-                  border: rainEnabled ? "1px solid var(--rn-accent)" : "1px solid rgba(255, 255, 255, 0.12)",
-                  color: rainEnabled ? "var(--rn-accent)" : "var(--rn-muted)",
-                  fontFamily: "var(--font-mono, monospace)",
-                  fontSize: "0.75rem",
-                  fontWeight: 700,
-                  letterSpacing: "0.08em",
-                  cursor: "pointer",
-                  transition: "background 200ms ease-out, border-color 200ms ease-out, color 200ms ease-out",
-                }}
-              >
-                <span
-                  style={{
-                    width: "8px",
-                    height: "8px",
-                    borderRadius: "50%",
-                    background: rainEnabled ? "var(--rn-accent)" : "var(--rn-muted)",
-                    display: "inline-block",
-                  }}
-                />
-                {rainEnabled ? "Nyala" : "Mati"}
-              </button>
-            </div>
+            <SwitchRow
+              title="Atmosfer"
+              description="Video hujan & cahaya di Hari Ini"
+              checked={atmosphere}
+              onToggle={() => setAtmosphereEnabled(!atmosphere)}
+            />
 
-            <div style={{ marginTop: "auto", fontFamily: "var(--font-mono)", fontSize: "0.6875rem", color: "var(--rn-muted)" }}>
-              Belajar v0.1.0 · P0 Polish
-            </div>
+            <ReminderRow />
+            <InstallSection />
+            <BackupSection />
+
+            <p className="rn-label" style={{ marginTop: "auto" }}>
+              Belajar v{APP_VERSION}
+            </p>
           </div>
         </div>
       )}
