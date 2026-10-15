@@ -26,6 +26,25 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Belajar",
   description: "Pendamping belajar harian",
+  applicationName: "Belajar",
+  icons: {
+    icon: [
+      { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
+  },
+  // iOS "Add to Home Screen": open full screen with a dark status bar.
+  appleWebApp: {
+    capable: true,
+    title: "Belajar",
+    statusBarStyle: "black-translucent",
+  },
+  formatDetection: { telephone: false },
+  other: {
+    // Older iOS versions only read the apple-prefixed tag.
+    "apple-mobile-web-app-capable": "yes",
+  },
 };
 
 export const viewport: Viewport = {

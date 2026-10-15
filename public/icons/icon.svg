@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Belajar mark: a thin progress arc (the Comet Dial) on near-black. Hand-made, no effects. -->
+  <rect width="512" height="512" rx="112" fill="#0B0D10"/>
+  <circle cx="256" cy="256" r="118.0" fill="none" stroke="#F2F2EE" stroke-opacity="0.10" stroke-width="26.0"/>
+  <path d="M 256.0 138.0 A 118.0 118.0 0 1 1 145.1 215.6" fill="none" stroke="#8FA3BF" stroke-width="26.0" stroke-linecap="round"/>
+  <circle cx="145.1" cy="215.6" r="16.1" fill="#F2F2EE"/>
+</svg>
