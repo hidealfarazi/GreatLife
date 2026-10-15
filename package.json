@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "lint": "eslint app lib"
+    "lint": "eslint app lib components"
   },
   "dependencies": {
     "motion": "^14.0.0",

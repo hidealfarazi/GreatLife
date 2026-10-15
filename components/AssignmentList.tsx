@@ -7,7 +7,7 @@
  */
 "use client";
 
-import { useRef, useState, useMemo, useSyncExternalStore } from "react";
+import { useEffect, useState, useMemo, useSyncExternalStore } from "react";
 import Link from "next/link";
 import {
   listAssignments,
@@ -46,7 +46,6 @@ export function AssignmentList() {
     listAssignments().filter((a) => !a.archivedAt)
   );
   const [pending, setPending] = useState<Assignment | null>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const nowMs = useNow();
   // Swipe hint is shown once: until the first time a row's actions are opened
   // (SwipeRow stores the flag in localStorage and fires "rn_swipe_hint").
@@ -60,35 +59,30 @@ export function AssignmentList() {
     setItems(listAssignments().filter((a) => !a.archivedAt));
   };
 
-  const handleArchive = (id: string) => {
-    if (pending?.id === id) {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = null;
+  // Real deletion happens 5 seconds after "Hapus" unless "Urungkan" clears `pending`.
+  useEffect(() => {
+    if (!pending) return;
+    const timer = setTimeout(() => {
+      deleteAssignment(pending.id);
       setPending(null);
-    }
+      setItems(listAssignments().filter((a) => !a.archivedAt));
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [pending]);
+
+  const handleArchive = (id: string) => {
     archiveAssignment(id);
     refresh();
   };
 
   const handleDeleteRequest = (item: Assignment) => {
-    if (pending && pending.id !== item.id) {
-      deleteAssignment(pending.id);
-    }
-    if (timerRef.current) clearTimeout(timerRef.current);
-
+    // A second delete while one is pending commits the first one right away.
+    if (pending && pending.id !== item.id) deleteAssignment(pending.id);
     setItems((prev) => prev.filter((a) => a.id !== item.id));
     setPending(item);
-    timerRef.current = setTimeout(() => {
-      deleteAssignment(item.id);
-      setPending(null);
-      timerRef.current = null;
-      refresh();
-    }, 5000);
   };
 
   const handleUndo = () => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = null;
     setPending(null);
     refresh();
   };

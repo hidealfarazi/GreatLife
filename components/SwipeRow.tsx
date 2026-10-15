@@ -142,7 +142,7 @@ export function SwipeRow({ children, onArchive, onDelete, ariaLabel = "Baris tug
   };
 
   return (
-    <div className="rn-swipe" aria-label={ariaLabel} onKeyDown={onKeyDown}>
+    <div className="rn-swipe" role="group" aria-label={ariaLabel} onKeyDown={onKeyDown}>
       {/* Foreground row */}
       <div
         className="rn-swipe-front"
