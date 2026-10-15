@@ -543,3 +543,70 @@ img, svg {
   border-color: var(--rn-accent) !important;
   box-shadow: 0 0 0 3px rgba(143, 163, 191, 0.18);
 }
+
+/* =============================================================
+   Swipe row (PR list) — transparent, radius 0, no border on the container
+   ============================================================= */
+.rn-swipe {
+  position: relative;
+  overflow: hidden;
+  background: transparent;
+  border-radius: 0;
+  touch-action: pan-y;
+}
+.rn-swipe-front {
+  position: relative;
+  z-index: 2;
+  background: transparent;
+  min-height: 44px;
+  -webkit-touch-callout: none;
+}
+.rn-swipe-front a,
+.rn-swipe-front img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+.rn-swipe-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  z-index: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: stretch;
+  visibility: hidden;
+}
+.rn-swipe-actions[data-visible="true"] { visibility: visible; }
+.rn-swipe-action {
+  width: 80px;
+  flex-shrink: 0;
+  color: var(--rn-bg);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.rn-swipe-action:focus-visible { outline-offset: -4px; outline-color: var(--rn-bg); }
+/* "Aksi": hidden until the row has keyboard focus (or mouse hover on hover devices) */
+.rn-swipe .rn-swipe-aksi {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto 0;
+  height: 44px;
+  opacity: 0;
+  pointer-events: none;
+  background: var(--rn-bg);
+}
+.rn-swipe:has(:focus-visible) .rn-swipe-aksi,
+.rn-swipe-aksi[aria-expanded="true"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+@media (hover: hover) and (pointer: fine) {
+  .rn-swipe:hover .rn-swipe-aksi { opacity: 1; pointer-events: auto; }
+}

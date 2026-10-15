@@ -49,7 +49,7 @@ export default function ArsipPage() {
           </p>
         </div>
       ) : (
-        <div role="list" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <div role="list" style={{ display: "flex", flexDirection: "column", borderTop: "1px solid var(--rn-line)" }}>
           {archived.map((item) => (
             <div
               key={item.id}
@@ -58,8 +58,7 @@ export default function ArsipPage() {
                 padding: "1.25rem 0",
                 borderBottom: "1px solid var(--rn-line)",
                 display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
+                flexDirection: "column",
                 gap: "1rem",
               }}
             >
@@ -110,9 +109,12 @@ export default function ArsipPage() {
                 </p>
               </div>
 
-              <div style={{ display: "flex", gap: "0.5rem", flexShrink: 0, alignItems: "center" }}>
+              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
                 {confirmDeleteId === item.id ? (
                   <>
+                    <span style={{ flexBasis: "100%", fontSize: "0.9375rem", color: "var(--rn-alert)" }}>
+                      Hapus permanen? Tugas ini tidak bisa dipulihkan.
+                    </span>
                     <Button
                       variant="primary"
                       onClick={() => {
@@ -125,7 +127,7 @@ export default function ArsipPage() {
                         fontSize: "0.6875rem",
                       }}
                     >
-                      Konfirmasi Hapus
+                      Ya, hapus
                     </Button>
                     <Button
                       variant="secondary"
