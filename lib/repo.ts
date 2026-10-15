@@ -428,3 +428,42 @@ export function buildRecommendationRequest(): {
   const doneTopics = skillNodes.filter((n) => n.done).map((n) => n.title);
   return { tasks, doneTopics };
 }
+
+let recInFlight: Promise<StoredRecommendation> | null = null;
+
+/**
+ * Today's recommendation for Home AND Belajar (shared, so the API is called at most once):
+ * cached entry -> POST /api/ai/recommend -> labelled mock fallback. Never throws.
+ */
+export function loadTodayRecommendation(): Promise<StoredRecommendation> {
+  const cached = getCachedRecommendation();
+  if (cached) return Promise.resolve(cached);
+  if (recInFlight) return recInFlight;
+  recInFlight = (async () => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15000);
+    try {
+      const res = await fetch("/api/ai/recommend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(buildRecommendationRequest()),
+        signal: controller.signal,
+      });
+      if (res.ok) {
+        const data = (await res.json()) as { recommendation?: Recommendation };
+        const rec = data.recommendation;
+        if (rec && typeof rec.topic === "string" && rec.topic) {
+          return saveRecommendation({ ...rec, alternatives: Array.isArray(rec.alternatives) ? rec.alternatives : [] }, "ai");
+        }
+      }
+    } catch {
+      /* network error / timeout: fall back below */
+    } finally {
+      clearTimeout(timer);
+    }
+    return saveRecommendation(getFallbackRecommendation(), "mock");
+  })().finally(() => {
+    recInFlight = null;
+  });
+  return recInFlight;
+}

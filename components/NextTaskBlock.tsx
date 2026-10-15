@@ -1,65 +1,50 @@
 /**
  * components/NextTaskBlock.tsx
- * Blok "Berikutnya": tugas paling mendesak + hitung mundur hidup (jam:menit),
- * diperbarui otomatis setiap menit.
+ * "Berikutnya": the single most urgent unfinished task, big title, and a live countdown
+ * in mono hh:mm (refreshes with the shared clock, at least once a minute).
+ * Amber < 4 hours, rose < 1 hour or overdue.
  */
 "use client";
 
 import { useMemo, useState } from "react";
-import { useNow } from "@/lib/useNow";
 import Link from "next/link";
 import { listAssignments } from "@/lib/repo";
 import { subjectColor } from "@/lib/subjectColors";
 import { formatTime } from "@/lib/mock";
+import { useNow } from "@/lib/useNow";
 import type { Assignment } from "@/lib/types";
+
+const pad = (n: number) => String(n).padStart(2, "0");
 
 export function NextTaskBlock() {
   const [items] = useState<Assignment[]>(() =>
-    listAssignments().filter((a) => !a.archivedAt)
+    listAssignments().filter((a) => !a.archivedAt && a.status !== "done")
   );
   const nowMs = useNow();
 
-  // Ambil tugas yang paling mendesak
-  const mostUrgent = useMemo(() => {
-    if (items.length === 0) return null;
-    const sorted = [...items].sort(
-      (a, b) => new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime()
-    );
-    return sorted[0];
-  }, [items]);
+  const mostUrgent = useMemo(
+    () => [...items].sort((a, b) => new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime())[0] ?? null,
+    [items]
+  );
 
   if (!mostUrgent || nowMs === null) return null;
 
-  const due = new Date(mostUrgent.dueAt).getTime();
-  const diffMs = due - nowMs;
+  const diffMs = new Date(mostUrgent.dueAt).getTime() - nowMs;
   const isOverdue = diffMs < 0;
-
-  let countdownText = "";
-  let countdownColor = "var(--rn-accent)";
-
-  if (isOverdue) {
-    const overdueMins = Math.floor(Math.abs(diffMs) / 60000);
-    const hrs = Math.floor(overdueMins / 60);
-    const mins = overdueMins % 60;
-    countdownText = `LEWAT ${hrs > 0 ? `${hrs}J ` : ""}${mins}M`;
-    countdownColor = "var(--rn-alert)";
-  } else {
-    const totalMins = Math.floor(diffMs / 60000);
-    const hrs = Math.floor(totalMins / 60);
-    const mins = totalMins % 60;
-    countdownText = `TERSISA ${hrs > 0 ? `${hrs}J ` : ""}${mins}M`;
-    if (totalMins < 60) {
-      countdownColor = "var(--rn-alert)";
-    } else if (totalMins < 240) {
-      countdownColor = "var(--rn-amber)";
-    }
-  }
+  const totalMins = Math.floor(Math.abs(diffMs) / 60000);
+  const hh = Math.floor(totalMins / 60);
+  const mm = totalMins % 60;
+  const countdown = `${isOverdue ? "−" : ""}${pad(hh)}:${pad(mm)}`;
+  const color = isOverdue || totalMins < 60 ? "var(--rn-alert)" : totalMins < 240 ? "var(--rn-amber)" : "var(--rn-text)";
+  const spoken = isOverdue
+    ? `Terlambat ${hh} jam ${mm} menit`
+    : `Sisa waktu ${hh} jam ${mm} menit`;
 
   return (
     <section
-      aria-label="Tugas Berikutnya"
+      aria-labelledby="next-task-label"
       style={{
-        padding: "1.25rem 0",
+        padding: "1.5rem 0",
         borderTop: "1px solid var(--rn-line)",
         borderBottom: "1px solid var(--rn-line)",
         display: "flex",
@@ -67,81 +52,57 @@ export function NextTaskBlock() {
         gap: "0.75rem",
       }}
     >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-        <span
-          style={{
-            fontFamily: "var(--font-mono, monospace)",
-            fontSize: "0.6875rem",
-            letterSpacing: "0.15em",
-            color: "var(--rn-muted)",
-            textTransform: "uppercase",
-            fontWeight: 700,
-          }}
-        >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "1rem" }}>
+        <h2 id="next-task-label" className="rn-label" style={{ fontWeight: 700, letterSpacing: "0.15em" }}>
           Berikutnya
-        </span>
-        <span
-          style={{
-            fontFamily: "var(--font-mono, monospace)",
-            fontSize: "0.6875rem",
-            letterSpacing: "0.08em",
-            color: countdownColor,
-            fontWeight: 700,
-          }}
-        >
-          {countdownText}
+        </h2>
+        <span className="rn-label" style={{ color: "var(--rn-muted)" }}>
+          {isOverdue ? "Lewat" : "Tersisa"}
         </span>
       </div>
 
       <Link
         href={`/pr/${mostUrgent.id}`}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "0.35rem",
-          textDecoration: "none",
-          color: "inherit",
-          minHeight: 44,
-          justifyContent: "center",
-        }}
+        style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: "1rem", color: "inherit", minHeight: 44 }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-          <span
-            aria-hidden="true"
+        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <span
+              aria-hidden="true"
+              style={{ display: "inline-block", width: 2, height: "0.75rem", backgroundColor: subjectColor(mostUrgent.subject), flexShrink: 0 }}
+            />
+            <span className="rn-label" style={{ letterSpacing: "0.1em" }}>
+              {mostUrgent.subject} · {formatTime(new Date(mostUrgent.dueAt))}
+            </span>
+          </div>
+          <p
             style={{
-              display: "inline-block",
-              width: "2px",
-              height: "0.75rem",
-              backgroundColor: subjectColor(mostUrgent.subject),
-              borderRadius: "1px",
-              flexShrink: 0,
-            }}
-          />
-          <span
-            style={{
-              fontFamily: "var(--font-mono, monospace)",
-              fontSize: "0.6875rem",
-              letterSpacing: "0.1em",
-              color: countdownColor,
-              textTransform: "uppercase",
-              fontWeight: 600,
+              fontFamily: "var(--font-display, sans-serif)",
+              fontSize: "clamp(1.5rem, 6vw, 2rem)",
+              fontWeight: 700,
+              lineHeight: 1.15,
+              letterSpacing: "-0.015em",
+              color: "var(--rn-text)",
             }}
           >
-            {mostUrgent.subject} · {formatTime(new Date(mostUrgent.dueAt))}
-          </span>
+            {mostUrgent.title}
+          </p>
         </div>
-
-        <p
+        <span className="rn-visually-hidden">{spoken}</span>
+        <span
+          aria-hidden="true"
           style={{
-            fontSize: "1.25rem",
-            fontWeight: 800,
-            lineHeight: 1.25,
-            color: "var(--rn-text)",
-            letterSpacing: "-0.01em",
+            fontFamily: "var(--font-mono, monospace)",
+            fontSize: "clamp(1.5rem, 6vw, 2rem)",
+            fontVariantNumeric: "tabular-nums",
+            letterSpacing: "-0.02em",
+            color,
+            flexShrink: 0,
+            lineHeight: 1,
           }}
         >
-          {mostUrgent.title}
-        </p>
+          {countdown}
+        </span>
       </Link>
     </section>
   );

@@ -12,14 +12,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  buildRecommendationRequest,
-  getCachedRecommendation,
-  getFallbackRecommendation,
-  saveRecommendation,
-  switchRecommendationTopic,
-  type StoredRecommendation,
-} from "@/lib/repo";
+import { loadTodayRecommendation, switchRecommendationTopic, type StoredRecommendation } from "@/lib/repo";
 import type { Recommendation } from "@/lib/ai/types";
 import { Button } from "@/components/ui/Button";
 import { HeroHeadline } from "@/components/HeroHeadline";
@@ -30,41 +23,13 @@ const TIER_LABEL: Record<Recommendation["tier"], string> = {
   ai: "AI Engineering",
 };
 
-async function fetchRecommendation(): Promise<Recommendation | null> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 15000);
-  try {
-    const res = await fetch("/api/ai/recommend", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(buildRecommendationRequest()),
-      signal: controller.signal,
-    });
-    if (!res.ok) return null;
-    const data = (await res.json()) as { recommendation?: Recommendation };
-    const rec = data.recommendation;
-    if (!rec || typeof rec.topic !== "string" || !rec.topic) return null;
-    return { ...rec, alternatives: Array.isArray(rec.alternatives) ? rec.alternatives : [] };
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
 export function RecommendationHero() {
   const [entry, setEntry] = useState<StoredRecommendation | null>(null);
 
   useEffect(() => {
     let alive = true;
-    const cached = getCachedRecommendation();
-    if (cached) {
-      setEntry(cached);
-      return;
-    }
-    fetchRecommendation().then((rec) => {
-      if (!alive) return;
-      setEntry(rec ? saveRecommendation(rec, "ai") : saveRecommendation(getFallbackRecommendation(), "mock"));
+    loadTodayRecommendation().then((loaded) => {
+      if (alive) setEntry(loaded);
     });
     return () => {
       alive = false;

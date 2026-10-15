@@ -126,6 +126,8 @@ export function HeroHeadline({ topic }: { topic: string }) {
                 // glyphs start exactly at the column edge.
                 width: "111.112%",
                 marginLeft: "-5.556%",
+                // Touch devices: no hover/reach effect at all (canvas ignores the finger).
+                pointerEvents: canHover ? "auto" : "none",
               }}
             >
               <TechText
