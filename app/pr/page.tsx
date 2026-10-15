@@ -7,19 +7,7 @@ import { Button } from "@/components/ui/Button";
 
 export default function PrPage() {
   return (
-    <div
-      style={{
-        background: "transparent",
-        color: "var(--rn-text)",
-        minHeight: "100dvh",
-        padding: "2.5rem 1.5rem 8.5rem",
-        maxWidth: "36rem",
-        margin: "0 auto",
-        display: "flex",
-        flexDirection: "column",
-        gap: "1.75rem",
-      }}
-    >
+    <div className="rn-page" style={{ gap: "1.75rem" }}>
       <PageHead
         counter="02 / 04"
         section="PR"

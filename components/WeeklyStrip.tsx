@@ -7,6 +7,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useNow } from "@/lib/useNow";
 import { listAssignments } from "@/lib/repo";
 
 const DAY_LABELS = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
@@ -14,8 +15,11 @@ const DAY_LABELS = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
 export function WeeklyStrip() {
   const assignments = listAssignments().filter((a) => !a.archivedAt);
 
+  const nowMs = useNow();
+
   const days = useMemo(() => {
-    const now = new Date();
+    if (nowMs === null) return [];
+    const now = new Date(nowMs);
     // 0 = Sen, 6 = Min
     const dayOfWeek = now.getDay() === 0 ? 6 : now.getDay() - 1;
     const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dayOfWeek);
@@ -40,14 +44,14 @@ export function WeeklyStrip() {
         count,
       };
     });
-  }, [assignments]);
+  }, [assignments, nowMs]);
 
   return (
     <div
       style={{
         marginTop: "1rem",
         paddingTop: "1.5rem",
-        borderTop: "1px solid rgba(143, 163, 191, 0.15)",
+        borderTop: "1px solid var(--rn-line)",
         display: "flex",
         flexDirection: "column",
         gap: "0.85rem",

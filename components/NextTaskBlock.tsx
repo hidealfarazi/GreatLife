@@ -5,7 +5,8 @@
  */
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useNow } from "@/lib/useNow";
 import Link from "next/link";
 import { listAssignments } from "@/lib/repo";
 import { subjectColor } from "@/lib/subjectColors";
@@ -16,15 +17,7 @@ export function NextTaskBlock() {
   const [items] = useState<Assignment[]>(() =>
     listAssignments().filter((a) => !a.archivedAt)
   );
-  const [now, setNow] = useState<Date>(() => new Date());
-
-  // Update tiap menit (60 detik)
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setNow(new Date());
-    }, 60000);
-    return () => clearInterval(timer);
-  }, []);
+  const nowMs = useNow();
 
   // Ambil tugas yang paling mendesak
   const mostUrgent = useMemo(() => {
@@ -35,10 +28,10 @@ export function NextTaskBlock() {
     return sorted[0];
   }, [items]);
 
-  if (!mostUrgent) return null;
+  if (!mostUrgent || nowMs === null) return null;
 
   const due = new Date(mostUrgent.dueAt).getTime();
-  const diffMs = due - now.getTime();
+  const diffMs = due - nowMs;
   const isOverdue = diffMs < 0;
 
   let countdownText = "";
@@ -67,8 +60,8 @@ export function NextTaskBlock() {
       aria-label="Tugas Berikutnya"
       style={{
         padding: "1.25rem 0",
-        borderTop: "1px solid rgba(143, 163, 191, 0.15)",
-        borderBottom: "1px solid rgba(143, 163, 191, 0.15)",
+        borderTop: "1px solid var(--rn-line)",
+        borderBottom: "1px solid var(--rn-line)",
         display: "flex",
         flexDirection: "column",
         gap: "0.75rem",

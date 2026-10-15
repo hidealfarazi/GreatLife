@@ -5,7 +5,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { BackArrow, PageLabel } from "@/components/PageHead";
 import {
   getAssignment,
   listChecklist,
@@ -24,26 +24,11 @@ export function AssignmentDetailClient({ id }: { id: string }) {
 
   if (!assignment) {
     return (
-      <div style={{ padding: "2rem 1.5rem", color: "var(--rn-text)", maxWidth: "36rem", margin: "0 auto" }}>
-        <Link
-          href="/pr"
-          aria-label="Kembali ke PR"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 44,
-            height: 44,
-            marginLeft: "-0.5rem",
-            color: "var(--rn-text)",
-            textDecoration: "none",
-            marginBottom: "1rem",
-          }}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-        </Link>
+      <div className="rn-page">
+        <header style={{ display: "flex", alignItems: "center", gap: "0.25rem", minHeight: 44 }}>
+          <BackArrow href="/pr" label="Kembali ke daftar PR" />
+          <PageLabel counter="02 / 04" section="PR" />
+        </header>
         <p style={{ color: "var(--rn-muted)" }}>Tugas tidak ditemukan.</p>
       </div>
     );
@@ -77,92 +62,54 @@ export function AssignmentDetailClient({ id }: { id: string }) {
 
   const bringsDone = brings.filter((b) => b.done).length;
 
+  const statusLabel =
+    assignment.status === "done" ? "Selesai" : assignment.status === "doing" ? "Dikerjakan" : "Belum mulai";
+
   return (
-    <div
-      style={{
-        background: "transparent",
-        color: "var(--rn-text)",
-        minHeight: "100dvh",
-        padding: "2rem 1.5rem 8.5rem",
-        maxWidth: "36rem",
-        margin: "0 auto",
-      }}
-    >
+    <div className="rn-page" style={{ gap: 0 }}>
+      <header style={{ display: "flex", alignItems: "center", gap: "0.25rem", minHeight: 44, marginBottom: "1.25rem" }}>
+        <BackArrow href="/pr" label="Kembali ke daftar PR" />
+        <PageLabel counter="02 / 04" section="PR" />
+      </header>
+
       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
-        <Link
-          href="/pr"
-          aria-label="Kembali ke PR"
+        <span
+          aria-hidden="true"
           style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 44,
-            height: 44,
-            marginLeft: "-0.5rem",
-            color: "var(--rn-text)",
-            textDecoration: "none",
+            display: "inline-block",
+            width: "2px",
+            height: "0.75rem",
+            backgroundColor: subjectColor(assignment.subject),
             flexShrink: 0,
           }}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-        </Link>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-          <span
-            aria-hidden="true"
-            style={{
-              display: "inline-block",
-              width: "2px",
-              height: "0.75rem",
-              backgroundColor: subjectColor(assignment.subject),
-              borderRadius: "1px",
-              flexShrink: 0,
-            }}
-          />
-          <span
-            style={{
-              fontFamily: "var(--font-mono, monospace)",
-              fontSize: "0.7rem",
-              letterSpacing: "0.1em",
-              color: "var(--rn-accent)",
-              textTransform: "uppercase",
-            }}
-          >
-            {assignment.subject}
-          </span>
-        </div>
+        />
+        <span className="rn-label" style={{ color: "var(--rn-accent)", letterSpacing: "0.1em" }}>
+          {assignment.subject}
+        </span>
       </div>
+
+      <h1 style={{ fontSize: "clamp(1.75rem, 8vw, 2.75rem)", fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.02em" }}>
+        {assignment.title}
+      </h1>
 
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          gap: "1.5rem",
-          marginBottom: "1.5rem",
+          alignItems: "center",
+          gap: "1.25rem",
+          margin: "1.75rem 0",
         }}
       >
-        <div style={{ flex: 1 }}>
-          <h1 style={{ fontSize: "clamp(1.75rem, 8vw, 2.75rem)", fontWeight: 800, lineHeight: 1.1 }}>
-            {assignment.title}
-          </h1>
-        </div>
-        <div style={{ flexShrink: 0 }}>
-          <CometDial value={progress} size={160} />
+        <CometDial value={progress} size={120} />
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
+          <span className="rn-label" style={{ color: "var(--rn-text)", letterSpacing: "0.08em" }}>
+            {formatTime(assignment.dueAt)} · {formatDate(assignment.dueAt)}
+          </span>
+          <span className="rn-label" style={{ letterSpacing: "0.08em" }}>
+            {statusLabel} · {steps.filter((x) => x.done).length}/{steps.length} langkah
+          </span>
         </div>
       </div>
-
-      <p
-        style={{
-          fontFamily: "var(--font-mono, monospace)",
-          fontSize: "0.75rem",
-          color: "var(--rn-muted)",
-          marginBottom: "1rem",
-        }}
-      >
-        {formatTime(assignment.dueAt)} · {formatDate(assignment.dueAt)} · {assignment.status}
-      </p>
 
       {assignment.description && (
         <p style={{ lineHeight: 1.6, color: "var(--rn-muted)", marginBottom: "2rem" }}>

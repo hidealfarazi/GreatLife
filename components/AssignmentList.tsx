@@ -7,7 +7,7 @@
  */
 "use client";
 
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState, useMemo, useSyncExternalStore } from "react";
 import Link from "next/link";
 import {
   listAssignments,
@@ -15,12 +15,19 @@ import {
   deleteAssignment,
   listChecklist,
 } from "@/lib/repo";
-import { formatTime, minutesUntil } from "@/lib/mock";
+import { formatTime } from "@/lib/mock";
 import { subjectColor } from "@/lib/subjectColors";
 import type { Assignment } from "@/lib/types";
 import { CometDial } from "@/components/CometDial";
 import { SwipeRow } from "@/components/SwipeRow";
 import { Button } from "@/components/ui/Button";
+import { useNow } from "@/lib/useNow";
+
+const HINT_KEY = "rn_swipe_hint_shown";
+const subscribeHint = (cb: () => void) => {
+  window.addEventListener("rn_swipe_hint", cb);
+  return () => window.removeEventListener("rn_swipe_hint", cb);
+};
 
 function progressOf(item: Assignment): number {
   const steps = listChecklist("assignment", item.id).filter((c) => c.kind === "step");
@@ -30,7 +37,6 @@ function progressOf(item: Assignment): number {
 
 interface GroupedAssignments {
   label: string;
-  badge?: string;
   isOverdue?: boolean;
   items: Assignment[];
 }
@@ -41,6 +47,14 @@ export function AssignmentList() {
   );
   const [pending, setPending] = useState<Assignment | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const nowMs = useNow();
+  // Swipe hint is shown once: until the first time a row's actions are opened
+  // (SwipeRow stores the flag in localStorage and fires "rn_swipe_hint").
+  const hintDone = useSyncExternalStore(
+    subscribeHint,
+    () => localStorage.getItem(HINT_KEY) === "true",
+    () => true
+  );
 
   const refresh = () => {
     setItems(listAssignments().filter((a) => !a.archivedAt));
@@ -81,7 +95,8 @@ export function AssignmentList() {
 
   // Group items by: Terlambat, Hari Ini, Besok, Minggu Ini
   const groups = useMemo(() => {
-    const now = new Date();
+    if (nowMs === null) return [];
+    const now = new Date(nowMs);
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
     const startOfTomorrow = startOfToday + 86400000;
     const startOfDayAfterTomorrow = startOfTomorrow + 86400000;
@@ -125,7 +140,7 @@ export function AssignmentList() {
     }
 
     return res;
-  }, [items]);
+  }, [items, nowMs]);
 
   // The very first active task is the most urgent focal point
   const mostUrgentId = useMemo(() => {
@@ -135,23 +150,25 @@ export function AssignmentList() {
 
   let globalIndex = 0;
 
+  if (nowMs === null) {
+    // Server render / hydration: wait for the real local clock so no task is mis-grouped.
+    return <div aria-busy="true" style={{ minHeight: "12rem" }} />;
+  }
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "2.5rem" }}>
       {items.length === 0 && !pending ? (
-        <p style={{ color: "var(--rn-muted)", fontStyle: "italic" }}>
-          Belum ada tugas aktif.
-        </p>
+        <p style={{ color: "var(--rn-muted)" }}>Belum ada tugas aktif.</p>
       ) : (
         groups.map((group) => (
           <section key={group.label} aria-labelledby={`group-${group.label}`}>
             <div
               style={{
                 display: "flex",
-                alignItems: "center",
-                gap: "0.75rem",
+                alignItems: "baseline",
+                gap: "0.5rem",
                 paddingBottom: "0.5rem",
-                borderBottom: "1px solid rgba(143, 163, 191, 0.15)",
-                marginBottom: "0.5rem",
+                borderBottom: "1px solid var(--rn-line)",
               }}
             >
               <h2
@@ -163,59 +180,36 @@ export function AssignmentList() {
                   textTransform: "uppercase",
                   color: group.isOverdue ? "var(--rn-alert)" : "var(--rn-muted)",
                   fontWeight: 700,
-                  margin: 0,
                 }}
               >
                 {group.label}
+                <span style={{ fontWeight: 400, marginLeft: "0.5rem" }}>{group.items.length}</span>
               </h2>
-              {group.badge && (
-                <span
-                  style={{
-                    fontFamily: "var(--font-mono, monospace)",
-                    fontSize: "0.625rem",
-                    padding: "0.15rem 0.4rem",
-                    background: "rgba(217, 119, 107, 0.15)",
-                    color: "var(--rn-alert)",
-                    border: "1px solid var(--rn-alert)",
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    fontWeight: 800,
-                  }}
-                >
-                  {group.badge}
-                </span>
-              )}
-              <span
-                style={{
-                  fontFamily: "var(--font-mono, monospace)",
-                  fontSize: "0.6875rem",
-                  color: "var(--rn-muted)",
-                  marginLeft: "auto",
-                }}
-              >
-                {group.items.length}
-              </span>
             </div>
+
+            {!hintDone && globalIndex === 0 && (
+              <p className="rn-label" style={{ letterSpacing: "0.08em", padding: "0.75rem 0 0" }}>
+                Geser baris ke kiri untuk Arsip atau Hapus
+              </p>
+            )}
 
             <div role="list">
               {group.items.map((item) => {
                 const currentIndex = globalIndex++;
-                const mins = minutesUntil(new Date(item.dueAt));
+                const mins = Math.floor((new Date(item.dueAt).getTime() - nowMs) / 60000);
                 const isOverdue = mins < 0;
                 const isAlert = !isOverdue && mins < 60;
                 const isAmber = !isOverdue && mins >= 60 && mins < 240;
-                const statusColor = isOverdue
-                  ? "var(--rn-alert)"
-                  : isAlert
+                const timeColor = isOverdue || isAlert
                   ? "var(--rn-alert)"
                   : isAmber
                   ? "var(--rn-amber)"
-                  : "var(--rn-accent)";
+                  : "var(--rn-muted)";
                 const progress = progressOf(item);
                 const isFocal = item.id === mostUrgentId;
 
                 return (
-                  <div key={item.id} role="listitem">
+                  <div key={item.id} role="listitem" style={{ borderBottom: "1px solid var(--rn-line)" }}>
                     <SwipeRow
                       ariaLabel={`Tugas ${item.title}`}
                       isFirst={currentIndex === 0}
@@ -225,86 +219,67 @@ export function AssignmentList() {
                       <Link
                         href={`/pr/${item.id}`}
                         style={{
-                          display: "block",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "flex-start",
+                          gap: "1rem",
                           padding: isFocal ? "1.5rem 0" : "1.25rem 0",
-                          borderBottom: "1px solid rgba(168, 159, 140, 0.2)",
-                          textDecoration: "none",
                           color: "inherit",
-                          maxWidth: "100%",
                         }}
                       >
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "flex-start",
-                            gap: "1rem",
-                          }}
-                        >
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "baseline",
-                                marginBottom: "0.4rem",
-                                gap: "0.75rem",
-                              }}
-                            >
-                              <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                                <span
-                                  aria-hidden="true"
-                                  style={{
-                                    display: "inline-block",
-                                    width: "2px",
-                                    height: "0.75rem",
-                                    backgroundColor: subjectColor(item.subject),
-                                    borderRadius: "1px",
-                                    flexShrink: 0,
-                                  }}
-                                />
-                                <span
-                                  style={{
-                                    fontFamily: "var(--font-mono, monospace)",
-                                    fontSize: "0.6875rem",
-                                    letterSpacing: "0.1em",
-                                    color: isOverdue ? "var(--rn-muted)" : statusColor,
-                                    textTransform: "uppercase",
-                                    fontWeight: 500,
-                                  }}
-                                >
-                                  {item.subject}
-                                </span>
-                              </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "baseline",
+                              marginBottom: "0.4rem",
+                              gap: "0.75rem",
+                            }}
+                          >
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", minWidth: 0 }}>
                               <span
+                                aria-hidden="true"
                                 style={{
-                                  fontFamily: "var(--font-mono, monospace)",
-                                  fontSize: "0.6875rem",
-                                  color: statusColor,
-                                  letterSpacing: "0.05em",
+                                  display: "inline-block",
+                                  width: "2px",
+                                  height: "0.75rem",
+                                  backgroundColor: subjectColor(item.subject),
                                   flexShrink: 0,
-                                  fontWeight: isOverdue ? 700 : 400,
                                 }}
-                              >
-                                {formatTime(new Date(item.dueAt))}
+                              />
+                              <span className="rn-label" style={{ letterSpacing: "0.1em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                {item.subject}
                               </span>
                             </div>
-                            <p
+                            <span
                               style={{
-                                fontFamily: "var(--font-display, var(--font-body, sans-serif))",
-                                fontSize: isFocal ? "1.375rem" : "1.125rem",
-                                fontWeight: isFocal ? 800 : 700,
-                                lineHeight: 1.25,
-                                color: "var(--rn-text)",
-                                letterSpacing: "-0.01em",
+                                fontFamily: "var(--font-mono, monospace)",
+                                fontSize: "0.6875rem",
+                                color: timeColor,
+                                letterSpacing: "0.05em",
+                                flexShrink: 0,
+                                fontWeight: isOverdue || isAlert ? 700 : 400,
                               }}
                             >
-                              {item.title}
-                            </p>
+                              {formatTime(new Date(item.dueAt))}
+                            </span>
                           </div>
-                          <div style={{ flexShrink: 0, marginTop: "0.2rem" }}>
-                            <CometDial value={progress} size={isFocal ? 52 : 44} />
-                          </div>
+                          <p
+                            style={{
+                              fontFamily: "var(--font-display, var(--font-body, sans-serif))",
+                              fontSize: isFocal ? "1.375rem" : "1.125rem",
+                              fontWeight: 700,
+                              lineHeight: 1.25,
+                              color: "var(--rn-text)",
+                              letterSpacing: "-0.01em",
+                            }}
+                          >
+                            {item.title}
+                          </p>
+                        </div>
+                        <div style={{ flexShrink: 0, marginTop: "0.2rem" }}>
+                          <CometDial value={progress} size={isFocal ? 52 : 44} />
                         </div>
                       </Link>
                     </SwipeRow>
@@ -316,42 +291,11 @@ export function AssignmentList() {
         ))
       )}
 
-      {/* Undo toast */}
+      {/* Undo toast (5 seconds before the real deletion) */}
       {pending && (
-        <div
-          role="status"
-          aria-live="polite"
-          style={{
-            position: "fixed",
-            left: "1rem",
-            right: "1rem",
-            bottom: "5.5rem",
-            maxWidth: "34rem",
-            margin: "0 auto",
-            background: "var(--rn-text)",
-            color: "#0B0D10",
-            padding: "0.875rem 1rem",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: "1rem",
-            zIndex: 150,
-          }}
-        >
-          <span style={{ fontSize: "0.875rem", fontWeight: 600 }}>Tugas dihapus.</span>
-          <Button
-            variant="secondary"
-            onClick={handleUndo}
-            style={{
-              background: "rgba(11, 13, 16, 0.12)",
-              borderColor: "rgba(11, 13, 16, 0.25)",
-              color: "#0B0D10",
-              minHeight: "36px",
-              height: "36px",
-              padding: "0 0.85rem",
-              fontSize: "0.75rem",
-            }}
-          >
+        <div role="status" aria-live="polite" className="rn-toast">
+          <span style={{ fontSize: "0.9375rem" }}>Tugas dihapus.</span>
+          <Button variant="secondary" onClick={handleUndo}>
             Urungkan
           </Button>
         </div>

@@ -80,22 +80,12 @@ export default function NewAssignmentPage() {
   };
 
   return (
-    <div
-      style={{
-        background: "transparent",
-        color: "var(--rn-text)",
-        minHeight: "100dvh",
-        padding: "2.5rem 1.5rem 8.5rem",
-        maxWidth: "36rem",
-        margin: "0 auto",
-        display: "flex",
-        flexDirection: "column",
-        gap: "2rem",
-      }}
-    >
+    <div className="rn-page">
       <PageHead
         counter="02 / 04"
         section="PR"
+        backHref="/pr"
+        backLabel="Kembali ke daftar PR"
         title="Tugas Baru"
         sub="Tambah penugasan sekolah baru"
       />

@@ -83,8 +83,8 @@ export function getMockData(): MockData {
 }
 
 /** Returns a time-based Indonesian greeting */
-export function getGreeting(): string {
-  const hour = new Date().getHours();
+export function getGreeting(at: Date = new Date()): string {
+  const hour = at.getHours();
   if (hour < 11) return "Selamat pagi";
   if (hour < 15) return "Selamat siang";
   if (hour < 18) return "Selamat sore";

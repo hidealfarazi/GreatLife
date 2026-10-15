@@ -104,7 +104,7 @@ export function BelajarClient() {
             alignItems: "baseline",
             marginBottom: "1rem",
             paddingBottom: "0.5rem",
-            borderBottom: "1px solid rgba(143, 163, 191, 0.15)",
+            borderBottom: "1px solid var(--rn-line)",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
@@ -193,7 +193,7 @@ export function BelajarClient() {
               <div
                 key={cp.id}
                 style={{
-                  borderBottom: "1px solid rgba(168, 159, 140, 0.12)",
+                  borderBottom: "1px solid var(--rn-line)",
                 }}
               >
                 <SpringCheck
@@ -226,7 +226,7 @@ export function BelajarClient() {
             alignItems: "baseline",
             marginBottom: "1.25rem",
             paddingBottom: "0.5rem",
-            borderBottom: "1px solid rgba(143, 163, 191, 0.15)",
+            borderBottom: "1px solid var(--rn-line)",
           }}
         >
           <span
@@ -274,7 +274,7 @@ export function BelajarClient() {
                   flexDirection: "column",
                   position: "relative",
                   paddingLeft: "1rem",
-                  borderLeft: "1px solid rgba(143, 163, 191, 0.2)",
+                  borderLeft: "1px solid var(--rn-line)",
                   gap: "0.75rem",
                 }}
               >
@@ -288,7 +288,7 @@ export function BelajarClient() {
                         alignItems: "center",
                         justifyContent: "space-between",
                         padding: "0.4rem 0",
-                        borderBottom: "1px solid rgba(168, 159, 140, 0.1)",
+                        borderBottom: "1px solid var(--rn-line)",
                         minHeight: 44,
                       }}
                     >
@@ -373,7 +373,7 @@ export function BelajarClient() {
         <div
           style={{
             paddingBottom: "0.5rem",
-            borderBottom: "1px solid rgba(143, 163, 191, 0.15)",
+            borderBottom: "1px solid var(--rn-line)",
             marginBottom: "1rem",
           }}
         >
@@ -450,7 +450,7 @@ export function BelajarClient() {
             alignItems: "baseline",
             marginBottom: "1rem",
             paddingBottom: "0.5rem",
-            borderBottom: "1px solid rgba(143, 163, 191, 0.15)",
+            borderBottom: "1px solid var(--rn-line)",
           }}
         >
           <span
@@ -514,7 +514,7 @@ export function BelajarClient() {
                 <div
                   key={mat.id}
                   style={{
-                    borderBottom: "1px solid rgba(168, 159, 140, 0.15)",
+                    borderBottom: "1px solid var(--rn-line)",
                     padding: "0.5rem 0",
                   }}
                 >

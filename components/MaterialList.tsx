@@ -91,7 +91,7 @@ export function MaterialList() {
               <div
                 key={mat.id}
                 style={{
-                  borderBottom: "1px solid rgba(168, 159, 140, 0.15)",
+                  borderBottom: "1px solid var(--rn-line)",
                   padding: "0.75rem 0",
                 }}
               >

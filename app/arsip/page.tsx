@@ -26,19 +26,7 @@ export default function ArsipPage() {
   };
 
   return (
-    <div
-      style={{
-        background: "transparent",
-        color: "var(--rn-text)",
-        minHeight: "100dvh",
-        padding: "2.5rem 1.5rem 8.5rem",
-        maxWidth: "36rem",
-        margin: "0 auto",
-        display: "flex",
-        flexDirection: "column",
-        gap: "2rem",
-      }}
-    >
+    <div className="rn-page">
       <PageHead
         counter="04 / 04"
         section="ARSIP"
@@ -49,15 +37,14 @@ export default function ArsipPage() {
       {archived.length === 0 ? (
         <div
           style={{
-            padding: "3rem 1rem",
-            textAlign: "center",
-            border: "1px dashed rgba(143, 163, 191, 0.2)",
+            padding: "2rem 0",
+            borderTop: "1px solid var(--rn-line)",
           }}
         >
           <p style={{ fontFamily: "var(--font-mono, monospace)", fontSize: "0.75rem", color: "var(--rn-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
             Arsip kosong
           </p>
-          <p style={{ fontSize: "0.85rem", color: "var(--rn-muted)", marginTop: "0.5rem" }}>
+          <p style={{ fontSize: "1rem", color: "var(--rn-muted)", marginTop: "0.5rem" }}>
             Tugas yang diselesaikan dan diarsipkan akan muncul di sini.
           </p>
         </div>
@@ -69,7 +56,7 @@ export default function ArsipPage() {
               role="listitem"
               style={{
                 padding: "1.25rem 0",
-                borderBottom: "1px solid rgba(168, 159, 140, 0.2)",
+                borderBottom: "1px solid var(--rn-line)",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",

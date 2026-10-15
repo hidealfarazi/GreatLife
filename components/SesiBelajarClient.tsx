@@ -9,7 +9,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { BackArrow, PageLabel } from "@/components/PageHead";
 import { addChecklistItem, listChecklist, toggleChecklistItem, deleteChecklistItem } from "@/lib/repo";
 import { Checklist } from "@/components/Checklist";
 import { Button } from "@/components/ui/Button";
@@ -117,47 +117,17 @@ export function SesiBelajarClient({ id }: { id: string }) {
   };
 
   return (
-    <div
-      style={{
-        background: "transparent",
-        color: "var(--rn-text)",
-        minHeight: "100dvh",
-        padding: "2.5rem 1.5rem 8.5rem",
-        maxWidth: "36rem",
-        margin: "0 auto",
-        display: "flex",
-        flexDirection: "column",
-        gap: "2rem",
-      }}
-    >
-      {/* Top Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <Link
-          href="/belajar"
-          aria-label="Kembali ke Belajar"
-          style={{
-            fontFamily: "var(--font-mono, monospace)",
-            fontSize: "0.6875rem",
-            letterSpacing: "0.12em",
-            color: "var(--rn-muted)",
-            textDecoration: "underline",
-            textUnderlineOffset: "3px",
-          }}
-        >
-          ← KEMBALI
-        </Link>
-        <span
-          style={{
-            fontFamily: "var(--font-mono, monospace)",
-            fontSize: "0.6875rem",
-            letterSpacing: "0.12em",
-            color: "var(--rn-accent)",
-            fontWeight: 700,
-          }}
-        >
-          SESI BELAJAR {id.toUpperCase()} · {step} / 4
+    <div className="rn-page">
+      {/* Top Header: back arrow + uniform label */}
+      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.75rem", minHeight: 44 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+          <BackArrow href="/belajar" label="Kembali ke Belajar" />
+          <PageLabel counter="03 / 04" section="Sesi belajar" />
+        </div>
+        <span className="rn-label" style={{ color: "var(--rn-accent)" }}>
+          {step} / 4
         </span>
-      </div>
+      </header>
 
       {saved ? (
         <div style={{ padding: "4rem 1rem", textAlign: "center" }}>
@@ -191,8 +161,8 @@ export function SesiBelajarClient({ id }: { id: string }) {
               <div
                 style={{
                   padding: "1.5rem 0",
-                  borderTop: "1px solid rgba(168, 159, 140, 0.2)",
-                  borderBottom: "1px solid rgba(168, 159, 140, 0.2)",
+                  borderTop: "1px solid var(--rn-line)",
+                  borderBottom: "1px solid var(--rn-line)",
                   display: "flex",
                   flexDirection: "column",
                   gap: "1rem",
@@ -211,7 +181,7 @@ export function SesiBelajarClient({ id }: { id: string }) {
                   variant="primary"
                   onClick={() => setStep(2)}
                 >
-                  Lanjut ke Istilah →
+                  Lanjut ke Istilah
                 </Button>
               </div>
             </div>
@@ -251,13 +221,13 @@ export function SesiBelajarClient({ id }: { id: string }) {
                   variant="secondary"
                   onClick={() => setStep(1)}
                 >
-                  ← Kembali
+                  Sebelumnya
                 </Button>
                 <Button
                   variant="primary"
                   onClick={() => setStep(3)}
                 >
-                  Lanjut Kuis →
+                  Lanjut Kuis
                 </Button>
               </div>
             </div>
@@ -292,7 +262,7 @@ export function SesiBelajarClient({ id }: { id: string }) {
                   const isAnswered = answeredIndex !== undefined;
 
                   return (
-                    <div key={q.id} style={{ display: "flex", flexDirection: "column", gap: "0.85rem", paddingBottom: "1.5rem", borderBottom: "1px solid rgba(168, 159, 140, 0.2)" }}>
+                    <div key={q.id} style={{ display: "flex", flexDirection: "column", gap: "0.85rem", paddingBottom: "1.5rem", borderBottom: "1px solid var(--rn-line)" }}>
                       <p style={{ fontSize: "1.05rem", fontWeight: 700, lineHeight: 1.4 }}>
                         {idx + 1}. {q.question}
                       </p>
@@ -300,7 +270,7 @@ export function SesiBelajarClient({ id }: { id: string }) {
                       <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                         {q.options.map((opt, optIdx) => {
                           let optBg = "transparent";
-                          let optBorder = "1px solid rgba(143, 163, 191, 0.2)";
+                          let optBorder = "1px solid var(--rn-line)";
                           let optColor = "var(--rn-text)";
 
                           if (isAnswered) {
@@ -363,13 +333,13 @@ export function SesiBelajarClient({ id }: { id: string }) {
                   variant="secondary"
                   onClick={() => setStep(2)}
                 >
-                  ← Kembali
+                  Sebelumnya
                 </Button>
                 <Button
                   variant="primary"
                   onClick={() => setStep(4)}
                 >
-                  Lanjut Refleksi →
+                  Lanjut Refleksi
                 </Button>
               </div>
             </div>
@@ -449,13 +419,13 @@ export function SesiBelajarClient({ id }: { id: string }) {
                   variant="secondary"
                   onClick={() => setStep(3)}
                 >
-                  ← Kembali
+                  Sebelumnya
                 </Button>
                 <Button
                   type="submit"
                   variant="primary"
                 >
-                  Selesai & Simpan ✓
+                  Selesai & Simpan
                 </Button>
               </div>
             </form>

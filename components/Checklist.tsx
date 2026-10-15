@@ -86,7 +86,7 @@ export function Checklist({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                borderBottom: "1px solid rgba(168, 159, 140, 0.12)",
+                borderBottom: "1px solid var(--rn-line)",
               }}
             >
               <div style={{ flex: 1, minWidth: 0 }}>
