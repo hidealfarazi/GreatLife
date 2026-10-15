@@ -269,37 +269,30 @@ export function SesiBelajarClient({ id }: { id: string }) {
 
                       <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                         {q.options.map((opt, optIdx) => {
-                          let optBg = "transparent";
-                          let optBorder = "1px solid var(--rn-line)";
-                          let optColor = "var(--rn-text)";
-
-                          if (isAnswered) {
-                            if (optIdx === q.correctIndex) {
-                              optBg = "rgba(126, 157, 132, 0.15)";
-                              optBorder = "1px solid #7E9D84";
-                            } else if (optIdx === answeredIndex) {
-                              optBg = "rgba(217, 119, 107, 0.15)";
-                              optBorder = "1px solid var(--rn-alert)";
-                            }
-                          }
+                          const isCorrect = isAnswered && optIdx === q.correctIndex;
+                          const isWrong = isAnswered && optIdx === answeredIndex && optIdx !== q.correctIndex;
 
                           return (
                             <button
                               key={opt}
                               type="button"
+                              className="rn-chip"
+                              aria-pressed={answeredIndex === optIdx}
+                              aria-disabled={isAnswered && !isCorrect && !isWrong ? true : undefined}
                               onClick={() => handleAnswerSelect(q.id, optIdx)}
                               style={{
+                                justifyContent: "flex-start",
                                 textAlign: "left",
-                                padding: "0.75rem 1rem",
-                                background: optBg,
-                                border: optBorder,
-                                color: optColor,
-                                fontSize: "0.9rem",
+                                padding: "0.625rem 1rem",
+                                color: "var(--rn-text)",
+                                fontSize: "0.9375rem",
                                 lineHeight: 1.4,
                                 cursor: isAnswered ? "default" : "pointer",
-                                minHeight: 44,
-                                display: "flex",
-                                alignItems: "center",
+                                ...(isCorrect
+                                  ? { background: "rgba(143, 163, 191, 0.18)", borderColor: "var(--rn-accent)" }
+                                  : isWrong
+                                  ? { background: "rgba(217, 119, 107, 0.12)", borderColor: "var(--rn-alert)" }
+                                  : {}),
                               }}
                             >
                               {opt}
@@ -311,10 +304,9 @@ export function SesiBelajarClient({ id }: { id: string }) {
                       {isAnswered && (
                         <div
                           style={{
-                            padding: "0.85rem 1rem",
-                            background: "rgba(143, 163, 191, 0.08)",
-                            borderLeft: "2px solid var(--rn-accent)",
-                            fontSize: "0.875rem",
+                            padding: "0.25rem 0 0.25rem 1rem",
+                            borderLeft: "1px solid var(--rn-accent)",
+                            fontSize: "0.9375rem",
                             lineHeight: 1.5,
                             color: "var(--rn-muted)",
                             marginTop: "0.5rem",
@@ -383,6 +375,10 @@ export function SesiBelajarClient({ id }: { id: string }) {
                     if (reflectionError) setReflectionError("");
                   }}
                   placeholder="Contoh: Saya paham kapan harus pakai Server vs Client Component..."
+                  aria-label="Refleksi satu kalimat"
+                  aria-invalid={!!reflectionError}
+                  autoComplete="off"
+                  className="rn-input"
                   style={{
                     width: "100%",
                     height: "52px",
@@ -396,7 +392,6 @@ export function SesiBelajarClient({ id }: { id: string }) {
                     fontFamily: "var(--font-body, sans-serif)",
                     fontSize: "1rem",
                     minHeight: 44,
-                    outline: "none",
                   }}
                 />
                 {reflectionError && (

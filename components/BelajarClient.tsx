@@ -124,9 +124,7 @@ export function BelajarClient() {
               style={{
                 fontFamily: "var(--font-mono, monospace)",
                 fontSize: "0.625rem",
-                padding: "0.15rem 0.4rem",
-                background: "rgba(143, 163, 191, 0.12)",
-                color: "var(--rn-accent)",
+                color: "var(--rn-muted)",
                 letterSpacing: "0.08em",
                 textTransform: "uppercase",
               }}

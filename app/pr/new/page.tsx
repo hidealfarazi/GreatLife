@@ -75,7 +75,6 @@ export default function NewAssignmentPage() {
     padding: "0 1rem",
     fontFamily: "var(--font-body, sans-serif)",
     fontSize: "1rem",
-    outline: "none",
     width: "100%",
   };
 
@@ -97,6 +96,7 @@ export default function NewAssignmentPage() {
             Judul Tugas *
           </label>
           <input
+            className="rn-input"
             id="pr-title"
             type="text"
             value={title}
@@ -131,6 +131,7 @@ export default function NewAssignmentPage() {
             Mata Pelajaran
           </label>
           <select
+            className="rn-input"
             id="pr-subject"
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
@@ -154,6 +155,7 @@ export default function NewAssignmentPage() {
             Tenggat Waktu
           </label>
           <input
+            className="rn-input"
             id="pr-due"
             type="datetime-local"
             value={dueDate}
@@ -180,20 +182,10 @@ export default function NewAssignmentPage() {
                 <button
                   key={p}
                   type="button"
+                  className="rn-chip"
+                  aria-pressed={isSelected}
                   onClick={() => setPriority(p)}
-                  style={{
-                    flex: 1,
-                    minHeight: "44px",
-                    borderRadius: "12px",
-                    border: isSelected ? "1px solid var(--rn-accent)" : "1px solid rgba(255, 255, 255, 0.12)",
-                    background: isSelected ? "rgba(143, 163, 191, 0.18)" : "rgba(255, 255, 255, 0.04)",
-                    color: isSelected ? "var(--rn-text)" : "var(--rn-muted)",
-                    fontFamily: "var(--font-mono, monospace)",
-                    fontSize: "0.75rem",
-                    fontWeight: isSelected ? 700 : 400,
-                    cursor: "pointer",
-                    transition: "all 200ms ease-out",
-                  }}
+                  style={{ flex: 1, fontFamily: "var(--font-mono, monospace)", fontSize: "0.75rem", padding: "0 0.5rem" }}
                 >
                   {labels[p]}
                 </button>
@@ -208,6 +200,7 @@ export default function NewAssignmentPage() {
             Catatan Tambahan
           </label>
           <input
+            className="rn-input"
             id="pr-desc"
             type="text"
             value={description}

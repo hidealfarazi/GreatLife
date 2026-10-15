@@ -75,7 +75,7 @@ export function Checklist({
 
       <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
         {items.length === 0 ? (
-          <p style={{ color: "var(--rn-muted)", fontStyle: "italic", fontSize: "0.9rem" }}>
+          <p style={{ color: "var(--rn-muted)", fontSize: "1rem" }}>
             Belum ada item.
           </p>
         ) : (
@@ -101,20 +101,13 @@ export function Checklist({
                 type="button"
                 onClick={() => onDelete(item.id)}
                 aria-label={`Hapus ${item.title}`}
-                style={{
-                  minHeight: 44,
-                  minWidth: 44,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "var(--rn-muted)",
-                  fontSize: "1rem",
-                  background: "transparent",
-                  border: "none",
-                  cursor: "pointer",
-                }}
+                className="rn-icon-btn"
+                style={{ color: "var(--rn-muted)" }}
               >
-                ✕
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
+                  <path d="M7 7l10 10" />
+                  <path d="M17 7L7 17" />
+                </svg>
               </button>
             </div>
           ))
