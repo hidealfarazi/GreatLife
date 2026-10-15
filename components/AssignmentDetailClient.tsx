@@ -4,7 +4,6 @@
  */
 "use client";
 
-import { useState } from "react";
 import { BackArrow, PageLabel } from "@/components/PageHead";
 import {
   getAssignment,
@@ -13,14 +12,29 @@ import {
   addChecklistItem,
   deleteChecklistItem,
 } from "@/lib/repo";
+import { useRepo } from "@/lib/useRepo";
 import { formatTime, formatDate } from "@/lib/mock";
 import { subjectColor } from "@/lib/subjectColors";
 import { CometDial } from "@/components/CometDial";
 import { Checklist } from "@/components/Checklist";
 
 export function AssignmentDetailClient({ id }: { id: string }) {
-  const assignment = getAssignment(id);
-  const [items, setItems] = useState(() => listChecklist("assignment", id));
+  const data = useRepo(() => ({ assignment: getAssignment(id), items: listChecklist("assignment", id) }));
+
+  if (data === null) {
+    // Database still loading: quiet placeholder (no spinner flash).
+    return (
+      <div className="rn-page" aria-busy="true">
+        <header style={{ display: "flex", alignItems: "center", gap: "0.25rem", minHeight: 44 }}>
+          <BackArrow href="/pr" label="Kembali ke daftar PR" />
+          <PageLabel counter="02 / 04" section="PR" />
+        </header>
+        <div style={{ minHeight: "20rem" }} />
+      </div>
+    );
+  }
+
+  const { assignment, items } = data;
 
   if (!assignment) {
     return (
@@ -34,23 +48,16 @@ export function AssignmentDetailClient({ id }: { id: string }) {
     );
   }
 
-  const refresh = () => {
-    setItems(listChecklist("assignment", id));
-  };
-
   const handleToggle = (itemId: string) => {
     toggleChecklistItem(itemId);
-    refresh();
   };
 
   const handleAdd = (kind: "step" | "bring", title: string) => {
     addChecklistItem("assignment", id, kind, title);
-    refresh();
   };
 
   const handleDelete = (itemId: string) => {
     deleteChecklistItem(itemId);
-    refresh();
   };
 
   const steps = items.filter((c) => c.kind === "step");
@@ -103,7 +110,7 @@ export function AssignmentDetailClient({ id }: { id: string }) {
         <CometDial value={progress} size={120} />
         <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
           <span className="rn-label" style={{ color: "var(--rn-text)", letterSpacing: "0.08em" }}>
-            {formatTime(assignment.dueAt)} · {formatDate(assignment.dueAt)}
+            {formatTime(new Date(assignment.dueAt))} · {formatDate(new Date(assignment.dueAt))}
           </span>
           <span className="rn-label" style={{ letterSpacing: "0.08em" }}>
             {statusLabel} · {steps.filter((x) => x.done).length}/{steps.length} langkah

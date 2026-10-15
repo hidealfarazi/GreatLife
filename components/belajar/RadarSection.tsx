@@ -3,7 +3,7 @@
  * 03 Roadmap tech stack — GET /api/ai/radar (through lib/repo.ts), grouped by track.
  * "Perubahan minggu ini": pending AI proposals with Terapkan / Abaikan.
  * "Cek pembaruan" when stale (with loading state), then the sources as small links.
- * API unavailable -> local seed labelled "Roadmap awal (offline)".
+ * API unavailable -> last copy saved on the device, else the local seed "Roadmap awal (offline)".
  */
 "use client";
 
@@ -75,7 +75,7 @@ export function RadarSection() {
         id="sec-radar"
         number="03"
         title="Roadmap tech stack"
-        meta={data?.offline ? "Roadmap awal (offline)" : undefined}
+        meta={data?.offline ? "Roadmap awal (offline)" : data?.fromCache ? "Tersimpan (offline)" : undefined}
       />
 
       {!radar ? (
@@ -85,6 +85,11 @@ export function RadarSection() {
           {data.offline && (
             <p style={{ color: "var(--rn-muted)", fontSize: "1rem", lineHeight: 1.6 }}>
               AI belum tersedia, jadi ini titik awal yang tersimpan di aplikasi. Usulan mingguan muncul setelah AI aktif.
+            </p>
+          )}
+          {data.fromCache && (
+            <p style={{ color: "var(--rn-muted)", fontSize: "1rem", lineHeight: 1.6 }}>
+              Belum bisa terhubung, jadi ini roadmap terakhir yang tersimpan di perangkat ini.
             </p>
           )}
 
@@ -120,7 +125,7 @@ export function RadarSection() {
             );
           })}
 
-          {!data.offline && (
+          {!data.offline && !data.fromCache && (
             <div role="group" aria-labelledby="radar-changes">
               <h3 id="radar-changes" className="rn-label" style={{ color: "var(--rn-text)", fontWeight: 700, marginBottom: "0.5rem" }}>
                 Perubahan minggu ini

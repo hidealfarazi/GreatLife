@@ -6,9 +6,10 @@
  */
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { listAssignments } from "@/lib/repo";
+import { useRepo } from "@/lib/useRepo";
 import { subjectColor } from "@/lib/subjectColors";
 import { formatTime } from "@/lib/mock";
 import { useNow } from "@/lib/useNow";
@@ -17,8 +18,10 @@ import type { Assignment } from "@/lib/types";
 const pad = (n: number) => String(n).padStart(2, "0");
 
 export function NextTaskBlock() {
-  const [items] = useState<Assignment[]>(() =>
-    listAssignments().filter((a) => !a.archivedAt && a.status !== "done")
+  const stored = useRepo(() => listAssignments());
+  const items = useMemo<Assignment[]>(
+    () => (stored ?? []).filter((a) => !a.archivedAt && a.status !== "done"),
+    [stored]
   );
   const nowMs = useNow();
 

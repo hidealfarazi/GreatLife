@@ -6,7 +6,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createAssignment } from "@/lib/repo";
+import { createAssignment, ensureRepoReady, flushRepo } from "@/lib/repo";
 import { PageHead } from "@/components/PageHead";
 import { Button } from "@/components/ui/Button";
 
@@ -27,13 +27,15 @@ export default function NewAssignmentPage() {
   const [dueDate, setDueDate] = useState(() => {
     const d = new Date();
     d.setHours(d.getHours() + 4);
-    return d.toISOString().slice(0, 16);
+    // datetime-local wants LOCAL time (toISOString would be UTC, 7 hours off in WIB).
+    const p = (n: number) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
   });
   const [priority, setPriority] = useState<1 | 2 | 3>(2);
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
       setError("Judul tugas tidak boleh kosong.");
@@ -41,6 +43,7 @@ export default function NewAssignmentPage() {
     }
     setError("");
 
+    await ensureRepoReady();
     createAssignment({
       title: title.trim(),
       subject,
@@ -48,7 +51,8 @@ export default function NewAssignmentPage() {
       priority,
       description: description.trim() || undefined,
     });
-
+    // Make sure the new task is saved on the device before leaving the form.
+    await flushRepo();
     router.push("/pr");
   };
 

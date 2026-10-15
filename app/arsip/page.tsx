@@ -4,6 +4,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRepo } from "@/lib/useRepo";
 import { listAssignments, restoreAssignment, deleteAssignment } from "@/lib/repo";
 import type { Assignment } from "@/lib/types";
 import { subjectColor } from "@/lib/subjectColors";
@@ -11,18 +12,12 @@ import { PageHead } from "@/components/PageHead";
 import { Button } from "@/components/ui/Button";
 
 export default function ArsipPage() {
-  const [archived, setArchived] = useState<Assignment[]>(() =>
-    listAssignments({ includeArchived: true }).filter((a) => a.archivedAt)
-  );
+  const stored = useRepo<Assignment[]>(() => listAssignments({ includeArchived: true }).filter((a) => a.archivedAt));
+  const archived = stored ?? [];
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-
-  const refresh = () => {
-    setArchived(listAssignments({ includeArchived: true }).filter((a) => a.archivedAt));
-  };
 
   const handleRestore = (id: string) => {
     restoreAssignment(id);
-    refresh();
   };
 
   return (
@@ -31,10 +26,12 @@ export default function ArsipPage() {
         counter="04 / 04"
         section="ARSIP"
         title="Arsip"
-        sub={`Tugas yang telah diarsipkan (${archived.length})`}
+        sub={stored === null ? "Tugas yang telah diarsipkan" : `Tugas yang telah diarsipkan (${archived.length})`}
       />
 
-      {archived.length === 0 ? (
+      {stored === null ? (
+        <div aria-busy="true" style={{ minHeight: "12rem" }} />
+      ) : archived.length === 0 ? (
         <div
           style={{
             padding: "2rem 0",
@@ -120,7 +117,6 @@ export default function ArsipPage() {
                       onClick={() => {
                         deleteAssignment(item.id);
                         setConfirmDeleteId(null);
-                        refresh();
                       }}
                       style={{
                         padding: "0 0.85rem",

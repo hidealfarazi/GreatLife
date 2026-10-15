@@ -6,6 +6,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRepo } from "@/lib/useRepo";
 import {
   getFocusCheckpoints,
   loadTodayRecommendation,
@@ -23,14 +24,12 @@ const TIER_LABEL: Record<Tier, string> = { fondasi: "Fondasi", kompetensi: "Komp
 
 export function FocusSection() {
   const [entry, setEntry] = useState<StoredRecommendation | null>(null);
-  const [checks, setChecks] = useState<FocusCheckpoint[]>([]);
 
   useEffect(() => {
     let alive = true;
     loadTodayRecommendation().then((loaded) => {
       if (!alive) return;
       setEntry(loaded);
-      setChecks(getFocusCheckpoints(loaded.rec.topic));
     });
     return () => {
       alive = false;
@@ -38,6 +37,7 @@ export function FocusSection() {
   }, []);
 
   const rec = entry?.rec;
+  const checks: FocusCheckpoint[] = useRepo(() => (rec ? getFocusCheckpoints(rec.topic) : [])) ?? [];
   const done = checks.filter((c) => c.done).length;
 
   return (
@@ -69,7 +69,7 @@ export function FocusSection() {
                 <SpringCheck
                   label={cp.title}
                   checked={cp.done}
-                  onChange={() => setChecks(toggleFocusCheckpoint(rec.topic, cp.id))}
+                  onChange={() => toggleFocusCheckpoint(rec.topic, cp.id)}
                 />
               </div>
             ))}

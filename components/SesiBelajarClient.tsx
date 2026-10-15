@@ -7,7 +7,8 @@
  */
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRepo, useRepoVersion } from "@/lib/useRepo";
 import { useRouter } from "next/navigation";
 import { BackArrow, PageLabel } from "@/components/PageHead";
 import {
@@ -69,19 +70,19 @@ const SAMPLE_QUIZ: QuizQuestion[] = [
   },
 ];
 
-const noopSubscribe = () => () => {};
-
 export function SesiBelajarClient({ id }: { id: string }) {
   const router = useRouter();
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
 
   // Step 2 checklist state (terms)
-  const [terms, setTerms] = useState(() => ensureSessionTerms(id));
-  const title = useSyncExternalStore(
-    noopSubscribe,
-    () => getSessionTitle(id),
-    () => "Sesi belajar"
-  );
+  const repoVersion = useRepoVersion();
+  const terms = useRepo(() => listChecklist("material", id)) ?? [];
+  const title = useRepo(() => getSessionTitle(id)) ?? "Sesi belajar";
+  const repoLoaded = repoVersion > 0;
+  // First visit of a session: seed sample terms once the saved data has loaded.
+  useEffect(() => {
+    if (repoLoaded) ensureSessionTerms(id);
+  }, [repoLoaded, id]);
   const stepHeadingRef = useRef<HTMLHeadingElement>(null);
   const firstRender = useRef(true);
 
@@ -104,23 +105,16 @@ export function SesiBelajarClient({ id }: { id: string }) {
   const [reflectionError, setReflectionError] = useState("");
   const [saved, setSaved] = useState(false);
 
-  const refreshTerms = () => {
-    setTerms(listChecklist("material", id));
-  };
-
   const handleToggleTerm = (termId: string) => {
     toggleChecklistItem(termId);
-    refreshTerms();
   };
 
   const handleAddTerm = (title: string) => {
     addChecklistItem("material", id, "term", title);
-    refreshTerms();
   };
 
   const handleDeleteTerm = (termId: string) => {
     deleteChecklistItem(termId);
-    refreshTerms();
   };
 
   const handleAnswerSelect = (qId: number, optIndex: number) => {

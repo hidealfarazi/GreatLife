@@ -1,34 +1,22 @@
 /**
  * lib/atmosphere.ts
- * The "Atmosfer" preference (rain video + bokeh on the Home hero), stored in localStorage.
- * Small external store so the Lainnya sheet switch and the hero stay in sync.
+ * The "Atmosfer" preference (rain video + bokeh on the Home hero), saved in the device
+ * settings through lib/repo.ts, so the Lainnya sheet switch and the hero stay in sync.
  */
 import { useSyncExternalStore } from "react";
-
-const KEY = "rn_rain_enabled";
-const EVENT = "rn_rain_toggle";
-
-function subscribe(callback: () => void): () => void {
-  window.addEventListener(EVENT, callback);
-  window.addEventListener("storage", callback);
-  return () => {
-    window.removeEventListener(EVENT, callback);
-    window.removeEventListener("storage", callback);
-  };
-}
-
-function getSnapshot(): boolean {
-  return localStorage.getItem(KEY) !== "false";
-}
+import { getSettings, updateSettings } from "./repo";
+import { useRepo } from "./useRepo";
 
 export function setAtmosphereEnabled(enabled: boolean): void {
-  localStorage.setItem(KEY, String(enabled));
-  window.dispatchEvent(new Event(EVENT));
+  updateSettings({ atmosphere: enabled });
 }
 
-/** true = Nyala (default), false = Mati. */
+/**
+ * true = Nyala (default), false = Mati. While the saved settings are still loading this
+ * returns false, so a "Mati" choice never flashes the video for a moment.
+ */
 export function useAtmosphereEnabled(): boolean {
-  return useSyncExternalStore(subscribe, getSnapshot, () => true);
+  return useRepo(() => getSettings().atmosphere) ?? false;
 }
 
 function subscribeReducedMotion(callback: () => void): () => void {

@@ -6,8 +6,9 @@
  */
 "use client";
 
-import { useSyncExternalStore } from "react";
-import { listSkillNodes, listSkillNodesInitial, subscribeSkillNodes, toggleSkillNode } from "@/lib/repo";
+import { listSkillNodes, toggleSkillNode } from "@/lib/repo";
+import { INITIAL_SKILL_NODES } from "@/lib/mock/learning";
+import { useRepo } from "@/lib/useRepo";
 import { CometDial } from "@/components/CometDial";
 import { SectionHead } from "./SectionHead";
 
@@ -20,7 +21,8 @@ const TIERS: { tier: 1 | 2 | 3; name: string }[] = [
 const DOT = 11;
 
 export function PathSection() {
-  const nodes = useSyncExternalStore(subscribeSkillNodes, listSkillNodes, listSkillNodesInitial);
+  // Saved progress from the device; the starter path is shown (static) while it loads.
+  const nodes = useRepo(listSkillNodes) ?? INITIAL_SKILL_NODES;
   const activeId = nodes.find((n) => !n.done)?.id;
   const doneCount = nodes.filter((n) => n.done).length;
 
